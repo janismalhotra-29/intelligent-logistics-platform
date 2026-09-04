@@ -1,0 +1,1134 @@
+[
+  {
+    "id": "R-1024",
+    "name": "NH-310A Gangtok \u2013 Mangan Sector (Mangan Ridge)",
+    "highway_no": "NH-310A",
+    "state": "Sikkim",
+    "from_hub": "HUB-SK-1",
+    "to_hub": "HUB-SK-2",
+    "distance_km": 68.0,
+    "status": "WATCH",
+    "base_speed_kmh": 28.0,
+    "elevation_m": 1850.0,
+    "slope_deg": 34.0,
+    "road_type": "National Highway",
+    "road_surface": "Asphalt/Bituminous",
+    "road_condition_score": 2,
+    "traffic_level": "High",
+    "river_proximity_m": 80.0,
+    "historical_landslides": 7,
+    "historical_floods": 1,
+    "bridge_condition_score": 3,
+    "coordinates": [
+      [
+        27.3389,
+        88.6065
+      ],
+      [
+        27.352,
+        88.618
+      ],
+      [
+        27.375,
+        88.612
+      ],
+      [
+        27.405,
+        88.585
+      ],
+      [
+        27.425,
+        88.552
+      ],
+      [
+        27.452,
+        88.542
+      ],
+      [
+        27.478,
+        88.535
+      ],
+      [
+        27.5034,
+        88.5284
+      ]
+    ],
+    "alternative_route_ids": [
+      "R-1028",
+      "R-1031"
+    ]
+  },
+  {
+    "id": "R-1028",
+    "name": "Dikchu \u2013 Phodong Western Bypass (Route B)",
+    "highway_no": "SH-7 (Sikkim)",
+    "state": "Sikkim",
+    "from_hub": "HUB-SK-1",
+    "to_hub": "HUB-SK-2",
+    "distance_km": 86.0,
+    "status": "ACCESSIBLE",
+    "base_speed_kmh": 32.0,
+    "elevation_m": 1420.0,
+    "slope_deg": 22.0,
+    "road_type": "State Highway Bypass",
+    "road_surface": "Asphalt",
+    "road_condition_score": 4,
+    "traffic_level": "Moderate",
+    "river_proximity_m": 350.0,
+    "historical_landslides": 2,
+    "historical_floods": 0,
+    "bridge_condition_score": 4,
+    "coordinates": [
+      [
+        27.3389,
+        88.6065
+      ],
+      [
+        27.362,
+        88.572
+      ],
+      [
+        27.398,
+        88.523
+      ],
+      [
+        27.428,
+        88.508
+      ],
+      [
+        27.465,
+        88.501
+      ],
+      [
+        27.489,
+        88.515
+      ],
+      [
+        27.5034,
+        88.5284
+      ]
+    ],
+    "alternative_route_ids": [
+      "R-1024",
+      "R-1031"
+    ]
+  },
+  {
+    "id": "R-1031",
+    "name": "Singtam \u2013 Tarku \u2013 Rabongla Ridge Bypass (Route C)",
+    "highway_no": "SH-11 (Sikkim)",
+    "state": "Sikkim",
+    "from_hub": "HUB-SK-1",
+    "to_hub": "HUB-SK-2",
+    "distance_km": 102.0,
+    "status": "ACCESSIBLE",
+    "base_speed_kmh": 26.0,
+    "elevation_m": 2100.0,
+    "slope_deg": 28.0,
+    "road_type": "State Mountain Highway",
+    "road_surface": "Bituminous",
+    "road_condition_score": 3,
+    "traffic_level": "Low",
+    "river_proximity_m": 600.0,
+    "historical_landslides": 3,
+    "historical_floods": 0,
+    "bridge_condition_score": 4,
+    "coordinates": [
+      [
+        27.3389,
+        88.6065
+      ],
+      [
+        27.285,
+        88.56
+      ],
+      [
+        27.235,
+        88.498
+      ],
+      [
+        27.265,
+        88.42
+      ],
+      [
+        27.31,
+        88.365
+      ],
+      [
+        27.385,
+        88.39
+      ],
+      [
+        27.44,
+        88.42
+      ],
+      [
+        27.48,
+        88.48
+      ],
+      [
+        27.5034,
+        88.5284
+      ]
+    ],
+    "alternative_route_ids": [
+      "R-1028"
+    ]
+  },
+  {
+    "id": "R-1035",
+    "name": "NH-10 Siliguri \u2013 Rangpo \u2013 Gangtok Lifeline Corridor",
+    "highway_no": "NH-10",
+    "state": "Sikkim",
+    "from_hub": "HUB-AS-1",
+    "to_hub": "HUB-SK-1",
+    "distance_km": 114.0,
+    "status": "RESTRICTED",
+    "base_speed_kmh": 34.0,
+    "elevation_m": 950.0,
+    "slope_deg": 31.0,
+    "road_type": "National Highway",
+    "road_surface": "Asphalt",
+    "road_condition_score": 2,
+    "traffic_level": "Heavy",
+    "river_proximity_m": 45.0,
+    "historical_landslides": 12,
+    "historical_floods": 4,
+    "bridge_condition_score": 3,
+    "coordinates": [
+      [
+        26.7271,
+        88.4283
+      ],
+      [
+        26.885,
+        88.472
+      ],
+      [
+        26.965,
+        88.515
+      ],
+      [
+        27.058,
+        88.528
+      ],
+      [
+        27.125,
+        88.532
+      ],
+      [
+        27.176,
+        88.531
+      ],
+      [
+        27.235,
+        88.498
+      ],
+      [
+        27.285,
+        88.562
+      ],
+      [
+        27.3389,
+        88.6065
+      ]
+    ],
+    "alternative_route_ids": []
+  },
+  {
+    "id": "R-1040",
+    "name": "NH-310A Mangan \u2013 Chungthang \u2013 Lachung Forward Sector",
+    "highway_no": "NH-310A North",
+    "state": "Sikkim",
+    "from_hub": "HUB-SK-2",
+    "to_hub": "HUB-SK-3",
+    "distance_km": 54.0,
+    "status": "WATCH",
+    "base_speed_kmh": 22.0,
+    "elevation_m": 2700.0,
+    "slope_deg": 38.0,
+    "road_type": "Strategic Border Highway",
+    "road_surface": "Bituminous",
+    "road_condition_score": 2,
+    "traffic_level": "Low",
+    "river_proximity_m": 90.0,
+    "historical_landslides": 9,
+    "historical_floods": 1,
+    "bridge_condition_score": 2,
+    "coordinates": [
+      [
+        27.5034,
+        88.5284
+      ],
+      [
+        27.545,
+        88.562
+      ],
+      [
+        27.59,
+        88.63
+      ],
+      [
+        27.635,
+        88.685
+      ],
+      [
+        27.6891,
+        88.743
+      ]
+    ],
+    "alternative_route_ids": []
+  },
+  {
+    "id": "R-2010",
+    "name": "NH-27 Guwahati \u2013 Nagaon \u2013 Doboka \u2013 Lumding \u2013 Silchar Corridor",
+    "highway_no": "NH-27",
+    "state": "Assam",
+    "from_hub": "HUB-AS-1",
+    "to_hub": "HUB-AS-2",
+    "distance_km": 310.0,
+    "status": "ACCESSIBLE",
+    "base_speed_kmh": 58.0,
+    "elevation_m": 140.0,
+    "slope_deg": 4.0,
+    "road_type": "National Highway 4-Lane",
+    "road_surface": "Asphalt",
+    "road_condition_score": 4,
+    "traffic_level": "Heavy",
+    "river_proximity_m": 420.0,
+    "historical_landslides": 0,
+    "historical_floods": 2,
+    "bridge_condition_score": 4,
+    "coordinates": [
+      [
+        26.1445,
+        91.7362
+      ],
+      [
+        26.185,
+        92.05
+      ],
+      [
+        26.345,
+        92.684
+      ],
+      [
+        26.085,
+        92.88
+      ],
+      [
+        25.75,
+        93.18
+      ],
+      [
+        25.41,
+        93.02
+      ],
+      [
+        25.12,
+        92.95
+      ],
+      [
+        24.8333,
+        92.7789
+      ]
+    ],
+    "alternative_route_ids": []
+  },
+  {
+    "id": "R-2020",
+    "name": "NH-37 Guwahati \u2013 Tezpur \u2013 Kaziranga \u2013 Jorhat \u2013 Dibrugarh",
+    "highway_no": "NH-37",
+    "state": "Assam",
+    "from_hub": "HUB-AS-1",
+    "to_hub": "HUB-AS-3",
+    "distance_km": 435.0,
+    "status": "ACCESSIBLE",
+    "base_speed_kmh": 52.0,
+    "elevation_m": 115.0,
+    "slope_deg": 3.0,
+    "road_type": "National Highway",
+    "road_surface": "Asphalt",
+    "road_condition_score": 4,
+    "traffic_level": "High",
+    "river_proximity_m": 210.0,
+    "historical_landslides": 0,
+    "historical_floods": 5,
+    "bridge_condition_score": 4,
+    "coordinates": [
+      [
+        26.1445,
+        91.7362
+      ],
+      [
+        26.65,
+        92.8
+      ],
+      [
+        26.58,
+        93.17
+      ],
+      [
+        26.69,
+        93.58
+      ],
+      [
+        26.75,
+        94.21
+      ],
+      [
+        26.98,
+        94.63
+      ],
+      [
+        27.4728,
+        94.912
+      ]
+    ],
+    "alternative_route_ids": []
+  },
+  {
+    "id": "R-2030",
+    "name": "NH-17 Guwahati \u2013 Goalpara \u2013 Dhubri Border Corridor",
+    "highway_no": "NH-17",
+    "state": "Assam",
+    "from_hub": "HUB-AS-1",
+    "to_hub": "HUB-AS-1",
+    "distance_km": 260.0,
+    "status": "ACCESSIBLE",
+    "base_speed_kmh": 50.0,
+    "elevation_m": 65.0,
+    "slope_deg": 2.0,
+    "road_type": "National Highway",
+    "road_surface": "Asphalt",
+    "road_condition_score": 4,
+    "traffic_level": "Moderate",
+    "river_proximity_m": 180.0,
+    "historical_landslides": 0,
+    "historical_floods": 4,
+    "bridge_condition_score": 4,
+    "coordinates": [
+      [
+        26.1445,
+        91.7362
+      ],
+      [
+        26.11,
+        91.2
+      ],
+      [
+        26.18,
+        90.62
+      ],
+      [
+        26.05,
+        90.25
+      ],
+      [
+        26.02,
+        89.98
+      ]
+    ],
+    "alternative_route_ids": []
+  },
+  {
+    "id": "R-3010",
+    "name": "NH-6 Guwahati \u2013 Nongpoh \u2013 Umiam \u2013 Shillong Expressway",
+    "highway_no": "NH-6",
+    "state": "Meghalaya",
+    "from_hub": "HUB-AS-1",
+    "to_hub": "HUB-ML-1",
+    "distance_km": 99.0,
+    "status": "ACCESSIBLE",
+    "base_speed_kmh": 46.0,
+    "elevation_m": 1520.0,
+    "slope_deg": 18.0,
+    "road_type": "National Highway 4-Lane",
+    "road_surface": "Asphalt",
+    "road_condition_score": 5,
+    "traffic_level": "High",
+    "river_proximity_m": 310.0,
+    "historical_landslides": 3,
+    "historical_floods": 0,
+    "bridge_condition_score": 5,
+    "coordinates": [
+      [
+        26.1445,
+        91.7362
+      ],
+      [
+        26.02,
+        91.81
+      ],
+      [
+        25.9,
+        91.88
+      ],
+      [
+        25.68,
+        91.91
+      ],
+      [
+        25.5788,
+        91.8933
+      ]
+    ],
+    "alternative_route_ids": []
+  },
+  {
+    "id": "R-3020",
+    "name": "NH-6 Shillong \u2013 Jowai \u2013 Khliehriat \u2013 Ratacherra \u2013 Silchar",
+    "highway_no": "NH-6 South",
+    "state": "Meghalaya",
+    "from_hub": "HUB-ML-1",
+    "to_hub": "HUB-AS-2",
+    "distance_km": 215.0,
+    "status": "WATCH",
+    "base_speed_kmh": 33.0,
+    "elevation_m": 1280.0,
+    "slope_deg": 27.0,
+    "road_type": "National Highway",
+    "road_surface": "Bituminous",
+    "road_condition_score": 2,
+    "traffic_level": "High",
+    "river_proximity_m": 120.0,
+    "historical_landslides": 8,
+    "historical_floods": 1,
+    "bridge_condition_score": 3,
+    "coordinates": [
+      [
+        25.5788,
+        91.8933
+      ],
+      [
+        25.51,
+        92.05
+      ],
+      [
+        25.44,
+        92.2
+      ],
+      [
+        25.32,
+        92.35
+      ],
+      [
+        25.05,
+        92.48
+      ],
+      [
+        24.9,
+        92.65
+      ],
+      [
+        24.8333,
+        92.7789
+      ]
+    ],
+    "alternative_route_ids": []
+  },
+  {
+    "id": "R-3030",
+    "name": "SH-5 Shillong \u2013 Mylliem \u2013 Cherrapunji (Sohra) Highway",
+    "highway_no": "SH-5",
+    "state": "Meghalaya",
+    "from_hub": "HUB-ML-1",
+    "to_hub": "HUB-ML-1",
+    "distance_km": 54.0,
+    "status": "WATCH",
+    "base_speed_kmh": 30.0,
+    "elevation_m": 1430.0,
+    "slope_deg": 29.0,
+    "road_type": "High Rainfall Highway",
+    "road_surface": "Bituminous",
+    "road_condition_score": 3,
+    "traffic_level": "Moderate",
+    "river_proximity_m": 180.0,
+    "historical_landslides": 6,
+    "historical_floods": 0,
+    "bridge_condition_score": 3,
+    "coordinates": [
+      [
+        25.5788,
+        91.8933
+      ],
+      [
+        25.48,
+        91.84
+      ],
+      [
+        25.38,
+        91.78
+      ],
+      [
+        25.27,
+        91.73
+      ]
+    ],
+    "alternative_route_ids": []
+  },
+  {
+    "id": "R-4010",
+    "name": "NH-13 Bhalukpong \u2013 Bomdila \u2013 Sela Tunnel \u2013 Tawang Highway",
+    "highway_no": "NH-13 Tawang",
+    "state": "Arunachal Pradesh",
+    "from_hub": "HUB-AS-1",
+    "to_hub": "HUB-AR-2",
+    "distance_km": 315.0,
+    "status": "RESTRICTED",
+    "base_speed_kmh": 26.0,
+    "elevation_m": 3150.0,
+    "slope_deg": 36.0,
+    "road_type": "Strategic Border Highway",
+    "road_surface": "Asphalt",
+    "road_condition_score": 3,
+    "traffic_level": "Moderate",
+    "river_proximity_m": 110.0,
+    "historical_landslides": 11,
+    "historical_floods": 1,
+    "bridge_condition_score": 4,
+    "coordinates": [
+      [
+        26.85,
+        92.65
+      ],
+      [
+        27.01,
+        92.58
+      ],
+      [
+        27.26,
+        92.42
+      ],
+      [
+        27.35,
+        92.24
+      ],
+      [
+        27.5,
+        92.1
+      ],
+      [
+        27.55,
+        91.98
+      ],
+      [
+        27.5861,
+        91.8594
+      ]
+    ],
+    "alternative_route_ids": []
+  },
+  {
+    "id": "R-4020",
+    "name": "NH-415 Tezpur \u2013 Banderdewa \u2013 Naharlagun \u2013 Itanagar Capital Arterial",
+    "highway_no": "NH-415",
+    "state": "Arunachal Pradesh",
+    "from_hub": "HUB-AS-1",
+    "to_hub": "HUB-AR-1",
+    "distance_km": 185.0,
+    "status": "ACCESSIBLE",
+    "base_speed_kmh": 44.0,
+    "elevation_m": 480.0,
+    "slope_deg": 16.0,
+    "road_type": "National Highway",
+    "road_surface": "Asphalt",
+    "road_condition_score": 4,
+    "traffic_level": "Moderate",
+    "river_proximity_m": 290.0,
+    "historical_landslides": 3,
+    "historical_floods": 1,
+    "bridge_condition_score": 4,
+    "coordinates": [
+      [
+        26.65,
+        92.8
+      ],
+      [
+        26.9,
+        93.3
+      ],
+      [
+        27.1,
+        93.68
+      ],
+      [
+        27.0844,
+        93.6053
+      ]
+    ],
+    "alternative_route_ids": []
+  },
+  {
+    "id": "R-4030",
+    "name": "NH-15 / NH-515 Itanagar \u2013 North Lakhimpur \u2013 Pasighat Terminal",
+    "highway_no": "NH-515",
+    "state": "Arunachal Pradesh",
+    "from_hub": "HUB-AR-1",
+    "to_hub": "HUB-AR-3",
+    "distance_km": 270.0,
+    "status": "ACCESSIBLE",
+    "base_speed_kmh": 48.0,
+    "elevation_m": 160.0,
+    "slope_deg": 8.0,
+    "road_type": "National Highway",
+    "road_surface": "Asphalt",
+    "road_condition_score": 4,
+    "traffic_level": "Moderate",
+    "river_proximity_m": 350.0,
+    "historical_landslides": 2,
+    "historical_floods": 3,
+    "bridge_condition_score": 4,
+    "coordinates": [
+      [
+        27.0844,
+        93.6053
+      ],
+      [
+        27.23,
+        94.1
+      ],
+      [
+        27.5,
+        94.6
+      ],
+      [
+        27.8,
+        95.05
+      ],
+      [
+        28.0664,
+        95.3267
+      ]
+    ],
+    "alternative_route_ids": []
+  },
+  {
+    "id": "R-5010",
+    "name": "NH-29 Dimapur \u2013 Chumoukedima \u2013 Medziphema \u2013 Kohima Corridor",
+    "highway_no": "NH-29",
+    "state": "Nagaland",
+    "from_hub": "HUB-NL-1",
+    "to_hub": "HUB-NL-2",
+    "distance_km": 74.0,
+    "status": "WATCH",
+    "base_speed_kmh": 34.0,
+    "elevation_m": 1440.0,
+    "slope_deg": 26.0,
+    "road_type": "National Highway 4-Lane",
+    "road_surface": "Asphalt",
+    "road_condition_score": 3,
+    "traffic_level": "Heavy",
+    "river_proximity_m": 150.0,
+    "historical_landslides": 7,
+    "historical_floods": 0,
+    "bridge_condition_score": 4,
+    "coordinates": [
+      [
+        25.9068,
+        93.7271
+      ],
+      [
+        25.82,
+        93.81
+      ],
+      [
+        25.75,
+        93.92
+      ],
+      [
+        25.7,
+        94.02
+      ],
+      [
+        25.6751,
+        94.1086
+      ]
+    ],
+    "alternative_route_ids": []
+  },
+  {
+    "id": "R-5020",
+    "name": "NH-2 Kohima \u2013 Wokha \u2013 Mokokchung Mountain Arterial",
+    "highway_no": "NH-2 North",
+    "state": "Nagaland",
+    "from_hub": "HUB-NL-2",
+    "to_hub": "HUB-NL-2",
+    "distance_km": 155.0,
+    "status": "ACCESSIBLE",
+    "base_speed_kmh": 30.0,
+    "elevation_m": 1320.0,
+    "slope_deg": 24.0,
+    "road_type": "State Mountain Highway",
+    "road_surface": "Bituminous",
+    "road_condition_score": 3,
+    "traffic_level": "Moderate",
+    "river_proximity_m": 220.0,
+    "historical_landslides": 4,
+    "historical_floods": 0,
+    "bridge_condition_score": 3,
+    "coordinates": [
+      [
+        25.6751,
+        94.1086
+      ],
+      [
+        25.89,
+        94.18
+      ],
+      [
+        26.1,
+        94.26
+      ],
+      [
+        26.32,
+        94.52
+      ]
+    ],
+    "alternative_route_ids": []
+  },
+  {
+    "id": "R-6010",
+    "name": "NH-2 Kohima \u2013 Senapati \u2013 Kangpokpi \u2013 Imphal Lifeline",
+    "highway_no": "NH-2 South",
+    "state": "Manipur",
+    "from_hub": "HUB-NL-2",
+    "to_hub": "HUB-MN-1",
+    "distance_km": 138.0,
+    "status": "ACCESSIBLE",
+    "base_speed_kmh": 36.0,
+    "elevation_m": 1050.0,
+    "slope_deg": 20.0,
+    "road_type": "National Highway",
+    "road_surface": "Asphalt",
+    "road_condition_score": 3,
+    "traffic_level": "High",
+    "river_proximity_m": 180.0,
+    "historical_landslides": 5,
+    "historical_floods": 1,
+    "bridge_condition_score": 4,
+    "coordinates": [
+      [
+        25.6751,
+        94.1086
+      ],
+      [
+        25.5,
+        94.12
+      ],
+      [
+        25.32,
+        94.05
+      ],
+      [
+        25.18,
+        94.02
+      ],
+      [
+        25.01,
+        93.97
+      ],
+      [
+        24.89,
+        93.95
+      ],
+      [
+        24.817,
+        93.9368
+      ]
+    ],
+    "alternative_route_ids": [
+      "R-6020"
+    ]
+  },
+  {
+    "id": "R-6020",
+    "name": "NH-37 Silchar \u2013 Jiribam \u2013 Noney \u2013 Imphal Corridor",
+    "highway_no": "NH-37 Jiribam",
+    "state": "Manipur",
+    "from_hub": "HUB-AS-2",
+    "to_hub": "HUB-MN-1",
+    "distance_km": 222.0,
+    "status": "RESTRICTED",
+    "base_speed_kmh": 28.0,
+    "elevation_m": 920.0,
+    "slope_deg": 32.0,
+    "road_type": "National Highway",
+    "road_surface": "Bituminous",
+    "road_condition_score": 2,
+    "traffic_level": "Moderate",
+    "river_proximity_m": 90.0,
+    "historical_landslides": 9,
+    "historical_floods": 2,
+    "bridge_condition_score": 3,
+    "coordinates": [
+      [
+        24.8333,
+        92.7789
+      ],
+      [
+        24.8,
+        93.12
+      ],
+      [
+        24.75,
+        93.38
+      ],
+      [
+        24.78,
+        93.58
+      ],
+      [
+        24.8,
+        93.75
+      ],
+      [
+        24.817,
+        93.9368
+      ]
+    ],
+    "alternative_route_ids": [
+      "R-6010"
+    ]
+  },
+  {
+    "id": "R-6030",
+    "name": "NH-102 Imphal \u2013 Thoubal \u2013 Kakching \u2013 Pallel \u2013 Moreh Border Highway",
+    "highway_no": "NH-102",
+    "state": "Manipur",
+    "from_hub": "HUB-MN-1",
+    "to_hub": "HUB-MN-1",
+    "distance_km": 110.0,
+    "status": "ACCESSIBLE",
+    "base_speed_kmh": 42.0,
+    "elevation_m": 780.0,
+    "slope_deg": 14.0,
+    "road_type": "International Trade Corridor",
+    "road_surface": "Asphalt",
+    "road_condition_score": 4,
+    "traffic_level": "Moderate",
+    "river_proximity_m": 140.0,
+    "historical_landslides": 3,
+    "historical_floods": 1,
+    "bridge_condition_score": 4,
+    "coordinates": [
+      [
+        24.817,
+        93.9368
+      ],
+      [
+        24.63,
+        93.98
+      ],
+      [
+        24.48,
+        93.99
+      ],
+      [
+        24.41,
+        94.02
+      ],
+      [
+        24.28,
+        94.15
+      ],
+      [
+        24.24,
+        94.3
+      ]
+    ],
+    "alternative_route_ids": []
+  },
+  {
+    "id": "R-7010",
+    "name": "NH-306 Silchar \u2013 Vairengte \u2013 Kolasib \u2013 Sairang \u2013 Aizawl Lifeline",
+    "highway_no": "NH-306",
+    "state": "Mizoram",
+    "from_hub": "HUB-AS-2",
+    "to_hub": "HUB-MZ-1",
+    "distance_km": 178.0,
+    "status": "WATCH",
+    "base_speed_kmh": 32.0,
+    "elevation_m": 1130.0,
+    "slope_deg": 30.0,
+    "road_type": "National Highway",
+    "road_surface": "Asphalt",
+    "road_condition_score": 3,
+    "traffic_level": "High",
+    "river_proximity_m": 140.0,
+    "historical_landslides": 8,
+    "historical_floods": 0,
+    "bridge_condition_score": 3,
+    "coordinates": [
+      [
+        24.8333,
+        92.7789
+      ],
+      [
+        24.58,
+        92.75
+      ],
+      [
+        24.49,
+        92.75
+      ],
+      [
+        24.22,
+        92.68
+      ],
+      [
+        23.95,
+        92.64
+      ],
+      [
+        23.82,
+        92.66
+      ],
+      [
+        23.7271,
+        92.7176
+      ]
+    ],
+    "alternative_route_ids": []
+  },
+  {
+    "id": "R-7020",
+    "name": "NH-54 Aizawl \u2013 Serchhip \u2013 Lunglei Southern Lifeline",
+    "highway_no": "NH-54 South",
+    "state": "Mizoram",
+    "from_hub": "HUB-MZ-1",
+    "to_hub": "HUB-MZ-2",
+    "distance_km": 165.0,
+    "status": "ACCESSIBLE",
+    "base_speed_kmh": 30.0,
+    "elevation_m": 1220.0,
+    "slope_deg": 28.0,
+    "road_type": "National Highway",
+    "road_surface": "Bituminous",
+    "road_condition_score": 3,
+    "traffic_level": "Moderate",
+    "river_proximity_m": 220.0,
+    "historical_landslides": 5,
+    "historical_floods": 0,
+    "bridge_condition_score": 3,
+    "coordinates": [
+      [
+        23.7271,
+        92.7176
+      ],
+      [
+        23.51,
+        92.78
+      ],
+      [
+        23.31,
+        92.85
+      ],
+      [
+        23.12,
+        92.81
+      ],
+      [
+        22.8833,
+        92.7333
+      ]
+    ],
+    "alternative_route_ids": []
+  },
+  {
+    "id": "R-8010",
+    "name": "NH-8 Silchar \u2013 Dharmanagar \u2013 Teliamura \u2013 Agartala Highway",
+    "highway_no": "NH-8",
+    "state": "Tripura",
+    "from_hub": "HUB-AS-2",
+    "to_hub": "HUB-TR-1",
+    "distance_km": 285.0,
+    "status": "ACCESSIBLE",
+    "base_speed_kmh": 46.0,
+    "elevation_m": 180.0,
+    "slope_deg": 9.0,
+    "road_type": "National Highway",
+    "road_surface": "Asphalt",
+    "road_condition_score": 4,
+    "traffic_level": "High",
+    "river_proximity_m": 220.0,
+    "historical_landslides": 1,
+    "historical_floods": 3,
+    "bridge_condition_score": 4,
+    "coordinates": [
+      [
+        24.8333,
+        92.7789
+      ],
+      [
+        24.55,
+        92.28
+      ],
+      [
+        24.3833,
+        92.1667
+      ],
+      [
+        24.18,
+        92.02
+      ],
+      [
+        23.92,
+        91.85
+      ],
+      [
+        23.84,
+        91.58
+      ],
+      [
+        23.8315,
+        91.2868
+      ]
+    ],
+    "alternative_route_ids": []
+  },
+  {
+    "id": "R-8020",
+    "name": "NH-208 Agartala \u2013 Bishalgarh \u2013 Udaipur \u2013 Santirbazar \u2013 Sabroom",
+    "highway_no": "NH-208",
+    "state": "Tripura",
+    "from_hub": "HUB-TR-1",
+    "to_hub": "HUB-TR-1",
+    "distance_km": 132.0,
+    "status": "ACCESSIBLE",
+    "base_speed_kmh": 50.0,
+    "elevation_m": 85.0,
+    "slope_deg": 6.0,
+    "road_type": "National Highway 4-Lane",
+    "road_surface": "Asphalt",
+    "road_condition_score": 4,
+    "traffic_level": "Moderate",
+    "river_proximity_m": 310.0,
+    "historical_landslides": 0,
+    "historical_floods": 2,
+    "bridge_condition_score": 5,
+    "coordinates": [
+      [
+        23.8315,
+        91.2868
+      ],
+      [
+        23.68,
+        91.31
+      ],
+      [
+        23.53,
+        91.48
+      ],
+      [
+        23.31,
+        91.55
+      ],
+      [
+        23.0,
+        91.7
+      ]
+    ],
+    "alternative_route_ids": []
+  }
+]

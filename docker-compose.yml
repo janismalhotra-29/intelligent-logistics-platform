@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: ner_postgis_db
+    restart: always
+    environment:
+      POSTGRES_DB: ner_logistics
+      POSTGRES_USER: ner_admin
+      POSTGRES_PASSWORD: ner_secure_password_2026
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgis_data:/var/lib/postgresql/data
+      - ./database/migrations/001_init_postgis.sql:/docker-entrypoint-initdb.d/001_init_postgis.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ner_admin -d ner_logistics"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: ner_backend
+    restart: always
+    environment:
+      - DATABASE_URL=postgresql://ner_admin:ner_secure_password_2026@db:5432/ner_logistics
+      - ENVIRONMENT=production
+      - PORT=8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ner_frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgis_data:
