@@ -190,6 +190,7 @@ export const App: React.FC = () => {
               onOpenScenario={() => setScenarioModalOpen(true)}
               onSelectScenarioVehicle={(id) => setScenarioVehicleId(id)}
               onNavigateToTab={setActiveTab}
+              onRefreshWeather={loadAllData}
             />
           )}
 

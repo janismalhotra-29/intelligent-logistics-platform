@@ -10,6 +10,7 @@ import ssl
 import logging
 from typing import List, Dict, Any, Optional
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 
 logger = logging.getLogger(__name__)
 
@@ -190,48 +191,49 @@ class LiveWeatherService:
             "last_updated": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
         }
 
+    def _fetch_station_safe(self, st: Dict[str, Any]) -> Dict[str, Any]:
+        """Fetch station telemetry with robust error handling and fallback."""
+        try:
+            return self.fetch_station_live(st)
+        except Exception as e:
+            logger.warning(f"Could not fetch live weather for {st['name']}: {e}")
+            existing = next((c for c in self._cache if c["station_id"] == st["station_id"]), None)
+            if existing:
+                return existing
+            return {
+                "station_id": st["station_id"],
+                "name": st["name"],
+                "state": st["state"],
+                "lat": st["lat"],
+                "lng": st["lng"],
+                "current_rainfall_mm": 0.0,
+                "rainfall_1h_mm": 0.0,
+                "rainfall_6h_mm": 2.0,
+                "rainfall_24h_mm": 5.0,
+                "rainfall_7d_mm": 20.0,
+                "forecast_rainfall_mm": 4.0,
+                "temperature_c": 24.0,
+                "humidity_percent": 82.0,
+                "wind_speed_kmh": 6.0,
+                "visibility_km": 8.0,
+                "warning_level": "NORMAL",
+                "weather_condition": "Mainly clear",
+                "wmo_code": 1,
+                "rainfall_trend": [1.0, 2.0, 3.0, 2.0, 4.0, 5.0, 5.0],
+                "is_live": False,
+                "source": "Baseline Forecast",
+                "last_updated": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+            }
+
     def get_live_weather(self, force_refresh: bool = False) -> List[Dict[str, Any]]:
-        """Get live weather for all 8 NER stations, using cache if within TTL."""
+        """Get live weather for all 8 NER stations concurrently, using cache if within TTL."""
         now = time.time()
         if not force_refresh and self._cache and (now - self._last_fetch_time < self.cache_ttl_seconds):
             return self._cache
 
-        updated_stations = []
-        for st in NER_STATIONS:
-            try:
-                live_data = self.fetch_station_live(st)
-                updated_stations.append(live_data)
-            except Exception as e:
-                logger.warning(f"Could not fetch live weather for {st['name']}: {e}")
-                # Fallback to existing cached entry or default baseline
-                existing = next((c for c in self._cache if c["station_id"] == st["station_id"]), None)
-                if existing:
-                    updated_stations.append(existing)
-                else:
-                    updated_stations.append({
-                        "station_id": st["station_id"],
-                        "name": st["name"],
-                        "state": st["state"],
-                        "lat": st["lat"],
-                        "lng": st["lng"],
-                        "current_rainfall_mm": 0.0,
-                        "rainfall_1h_mm": 0.0,
-                        "rainfall_6h_mm": 2.0,
-                        "rainfall_24h_mm": 5.0,
-                        "rainfall_7d_mm": 20.0,
-                        "forecast_rainfall_mm": 4.0,
-                        "temperature_c": 24.0,
-                        "humidity_percent": 82.0,
-                        "wind_speed_kmh": 6.0,
-                        "visibility_km": 8.0,
-                        "warning_level": "NORMAL",
-                        "weather_condition": "Mainly clear",
-                        "wmo_code": 1,
-                        "rainfall_trend": [1.0, 2.0, 3.0, 2.0, 4.0, 5.0, 5.0],
-                        "is_live": False,
-                        "source": "Baseline Forecast",
-                        "last_updated": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-                    })
+        # Concurrent parallel fetch for all 8 stations to ensure sub-second response
+        with ThreadPoolExecutor(max_workers=min(len(NER_STATIONS), 8)) as executor:
+            updated_stations = list(executor.map(self._fetch_station_safe, NER_STATIONS))
 
         if updated_stations:
             self._cache = updated_stations

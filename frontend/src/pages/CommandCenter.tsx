@@ -102,6 +102,9 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
   const [selectedStationId, setSelectedStationId] = useState<string | null>(null);
   const [isSyncingWeather, setIsSyncingWeather] = useState(false);
   const [localWeather, setLocalWeather] = useState<WeatherStation[]>(weather);
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [syncMessage, setSyncMessage] = useState<string | null>(null);
+  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
 
   React.useEffect(() => {
     if (weather && weather.length > 0) {
@@ -111,14 +114,28 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
 
   const handleSyncWeather = async () => {
     setIsSyncingWeather(true);
+    setSyncStatus('idle');
+    setSyncMessage(null);
     try {
       const fresh = await syncLiveWeather();
       if (fresh && fresh.length > 0) {
         setLocalWeather(fresh);
+        setSyncStatus('success');
+        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        setLastSyncTime(timeStr);
+        setSyncMessage(isHi ? `✓ ${fresh.length} मौसम केंद्र लाइव सिंक हुए (${timeStr})` : `✓ ${fresh.length} stations synced live (${timeStr})`);
         if (onRefreshWeather) onRefreshWeather();
+        setTimeout(() => setSyncMessage(null), 4000);
+      } else {
+        setSyncStatus('error');
+        setSyncMessage(isHi ? 'कोई मौसम डेटा प्राप्त नहीं हुआ' : 'No station data received');
+        setTimeout(() => setSyncMessage(null), 4000);
       }
     } catch (err) {
       console.error('Failed to sync live weather:', err);
+      setSyncStatus('error');
+      setSyncMessage(isHi ? 'सिंक विफल: बैकएंड उपलब्ध नहीं है' : 'Sync failed: Backend unreachable');
+      setTimeout(() => setSyncMessage(null), 4000);
     } finally {
       setIsSyncingWeather(false);
     }
@@ -377,10 +394,15 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
                 </h3>
               </div>
               <div className="flex items-center gap-2">
+                {lastSyncTime && (
+                  <span className="text-[9px] font-mono text-slate-400 hidden sm:inline" title="Last synced timestamp">
+                    {lastSyncTime}
+                  </span>
+                )}
                 <button
                   onClick={handleSyncWeather}
                   disabled={isSyncingWeather}
-                  className="flex items-center gap-1 text-[9px] font-mono font-bold text-slate-300 hover:text-cyan-300 bg-command-950 hover:bg-slate-800 px-2 py-0.5 rounded border border-slate-700 transition-colors cursor-pointer"
+                  className="flex items-center gap-1 text-[9px] font-mono font-bold text-slate-300 hover:text-cyan-300 bg-command-950 hover:bg-slate-800 px-2 py-0.5 rounded border border-slate-700 transition-colors cursor-pointer disabled:opacity-50"
                   title="Force re-fetch from Open-Meteo"
                 >
                   <RotateCcw className={`w-2.5 h-2.5 ${isSyncingWeather ? 'animate-spin text-cyan-400' : ''}`} />
@@ -392,6 +414,22 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
                 </span>
               </div>
             </div>
+
+            {/* Sync Feedback Message */}
+            {syncMessage && (
+              <div className={`flex items-center gap-1.5 text-[10px] font-mono font-bold px-2.5 py-1.5 rounded-lg border transition-all ${
+                syncStatus === 'success'
+                  ? 'bg-emerald-950/80 text-emerald-300 border-emerald-700/60'
+                  : 'bg-rose-950/80 text-rose-300 border-rose-700/60'
+              }`}>
+                {syncStatus === 'success' ? (
+                  <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
+                ) : (
+                  <AlertTriangle className="w-3 h-3 text-rose-400 shrink-0" />
+                )}
+                <span>{syncMessage}</span>
+              </div>
+            )}
 
             {/* Active Real-Time Weather Station Card */}
             {activeWeatherStation && (
