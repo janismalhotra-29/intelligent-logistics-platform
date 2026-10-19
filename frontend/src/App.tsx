@@ -22,7 +22,8 @@ import {
   fetchWeather, 
   fetchIncidents, 
   fetchAlerts, 
-  fetchHubs 
+  fetchHubs,
+  simulateVehicleTick
 } from './services/api';
 import { UserRole, Road, Vehicle, Shipment, WeatherStation, Incident, AlertItem, Hub, DashboardKPIs } from './types';
 import { Language } from './i18n/translations';
@@ -99,7 +100,7 @@ export const App: React.FC = () => {
   // Periodic background simulation ping (every 6s)
   useEffect(() => {
     const timer = setInterval(() => {
-      fetch('/api/vehicles/simulate-tick', { method: 'POST' })
+      simulateVehicleTick()
         .then(() => {
           fetchVehicles().then(setVehicles).catch(() => {});
         })

@@ -82,23 +82,62 @@ export const FieldOfficerApp: React.FC = () => {
     }
   };
 
+  const ROAD_STATE_MAP: Record<string, string> = {
+    'R-1024': 'Sikkim',
+    'R-1028': 'Sikkim',
+    'R-1031': 'Sikkim',
+    'R-1035': 'Sikkim',
+    'R-2010': 'Assam',
+    'R-2020': 'Assam',
+    'R-3010': 'Arunachal Pradesh',
+    'R-4010': 'Meghalaya',
+    'R-5010': 'Nagaland',
+    'R-6020': 'Manipur',
+    'R-7010': 'Mizoram',
+    'R-8010': 'Tripura'
+  };
+
+  const handleRealPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCvAnalyzing(true);
+    try {
+      const res = await classifyPhoto(file);
+      setCvResult(res);
+      setPhotoPreview(URL.createObjectURL(file));
+      if (res.predicted_type && res.predicted_type !== 'Normal') {
+        setIncidentType(res.predicted_type);
+      }
+      if (res.severity) {
+        setSeverity(res.severity);
+      }
+    } catch (err: any) {
+      alert(`Photo classification error: ${err.message}`);
+    } finally {
+      setCvAnalyzing(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const roadId = selectedRoad.split(':')[0].trim();
+    const derivedState = ROAD_STATE_MAP[roadId] || 'Sikkim';
+
     const report = {
       client_uuid: `FO-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
-      road_id: selectedRoad.split(':')[0],
+      road_id: roadId,
       road_name: selectedRoad.split(':')[1]?.trim() || selectedRoad,
-      state: 'Sikkim',
+      state: derivedState,
       incident_type: incidentType,
       severity: severity,
       latitude: latitude,
       longitude: longitude,
-      description: description || `Field officer ground verification for ${incidentType}`,
+      description: description || `Field officer ground verification for ${incidentType} on ${selectedRoad}`,
       officer_name: officerName,
       photo_url: photoPreview || '/demo/landslide_nh310a.jpg',
       cv_classification: cvResult || {
         detected_type: incidentType,
-        confidence: 93,
+        confidence: 90,
         severity: severity,
         recommended_action: 'Ground team dispatched.'
       }
@@ -240,14 +279,24 @@ export const FieldOfficerApp: React.FC = () => {
               <span className="text-[10px] font-mono text-cyan-400">CV Model Active</span>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-slate-800/80">
+              <label className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-cyan-700/40 hover:bg-cyan-700/60 border border-cyan-500/50 text-cyan-200 text-[11px] font-semibold cursor-pointer">
+                <Upload className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Upload Field Photo</span>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleRealPhotoUpload}
+                  className="hidden"
+                />
+              </label>
               <button
                 type="button"
                 onClick={() => handleSimulatePhotoUpload('Landslide')}
                 disabled={cvAnalyzing}
                 className="px-2.5 py-1.5 rounded-lg bg-command-800 hover:bg-command-700 border border-slate-700 text-slate-200 text-[11px] font-medium"
               >
-                📸 Sample Landslide Photo
+                📸 Demo Landslide
               </button>
               <button
                 type="button"
@@ -255,7 +304,7 @@ export const FieldOfficerApp: React.FC = () => {
                 disabled={cvAnalyzing}
                 className="px-2.5 py-1.5 rounded-lg bg-command-800 hover:bg-command-700 border border-slate-700 text-slate-200 text-[11px] font-medium"
               >
-                📸 Sample Flood Photo
+                📸 Demo Flood
               </button>
               <button
                 type="button"
@@ -263,7 +312,7 @@ export const FieldOfficerApp: React.FC = () => {
                 disabled={cvAnalyzing}
                 className="px-2.5 py-1.5 rounded-lg bg-command-800 hover:bg-command-700 border border-slate-700 text-slate-200 text-[11px] font-medium"
               >
-                📸 Sample Bridge Breach Photo
+                📸 Demo Bridge
               </button>
             </div>
 
@@ -335,10 +384,16 @@ export const FieldOfficerApp: React.FC = () => {
               onChange={(e) => setSelectedRoad(e.target.value)}
               className="w-full bg-command-800 text-white px-3 py-1.5 rounded-lg border border-slate-700"
             >
-              <option value="R-1024: NH-310A Gangtok–Mangan Sector">R-1024: NH-310A Gangtok–Mangan Sector</option>
-              <option value="R-1035: NH-10 Siliguri–Rangpo Lifeline">R-1035: NH-10 Siliguri–Rangpo Lifeline</option>
-              <option value="R-6020: NH-37 Silchar–Jiribam–Imphal">R-6020: NH-37 Silchar–Jiribam–Imphal</option>
-              <option value="R-7010: NH-306 Silchar–Aizawl Corridor">R-7010: NH-306 Silchar–Aizawl Corridor</option>
+              <option value="R-1024: NH-310A Gangtok–Mangan Sector (Sikkim)">R-1024: NH-310A Gangtok–Mangan Sector (Sikkim)</option>
+              <option value="R-1035: NH-10 Siliguri–Rangpo Lifeline (Sikkim)">R-1035: NH-10 Siliguri–Rangpo Lifeline (Sikkim)</option>
+              <option value="R-2010: NH-27 Guwahati–Nagaon–Silchar (Assam)">R-2010: NH-27 Guwahati–Nagaon–Silchar (Assam)</option>
+              <option value="R-2020: NH-37 Guwahati–Tezpur–Dibrugarh (Assam)">R-2020: NH-37 Guwahati–Tezpur–Dibrugarh (Assam)</option>
+              <option value="R-3010: NH-13 Trans-Himalayan Highway (Arunachal Pradesh)">R-3010: NH-13 Trans-Himalayan Highway (Arunachal Pradesh)</option>
+              <option value="R-4010: NH-6 Guwahati–Shillong–Silchar (Meghalaya)">R-4010: NH-6 Guwahati–Shillong–Silchar (Meghalaya)</option>
+              <option value="R-5010: NH-29 Dimapur–Kohima Highway (Nagaland)">R-5010: NH-29 Dimapur–Kohima Highway (Nagaland)</option>
+              <option value="R-6020: NH-37 Silchar–Jiribam–Imphal (Manipur)">R-6020: NH-37 Silchar–Jiribam–Imphal (Manipur)</option>
+              <option value="R-7010: NH-306 Silchar–Aizawl Corridor (Mizoram)">R-7010: NH-306 Silchar–Aizawl Corridor (Mizoram)</option>
+              <option value="R-8010: NH-8 Dharmanagar–Agartala Corridor (Tripura)">R-8010: NH-8 Dharmanagar–Agartala Corridor (Tripura)</option>
             </select>
           </div>
 
