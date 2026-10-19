@@ -11,35 +11,31 @@ import {
 import { NERMap } from '../components/maps/NERMap';
 import { translations, Language } from '../i18n/translations';
 import { 
-  Activity, 
+  Route, 
   AlertTriangle, 
-  Truck, 
   ShieldAlert, 
+  Radio, 
   CloudRain, 
+  RotateCcw, 
   CheckCircle2, 
-  Clock, 
-  Package, 
-  AlertOctagon,
-  ArrowRight,
-  MapPin,
-  Play,
-  Search,
-  Navigation,
-  Sparkles,
-  ShieldCheck,
-  CheckCircle,
-  X,
-  ExternalLink,
-  Info,
-  Radio,
-  RotateCcw,
+  X, 
+  ExternalLink, 
+  MapPin, 
+  ArrowUpRight,
+  Clock,
   Layers,
-  Cpu,
-  Route,
   ChevronRight
 } from 'lucide-react';
 import { syncLiveWeather } from '../services/api';
-import { SCENARIO_CONVOYS, DEFAULT_CONVOY_ID, ScenarioConvoy, getPhaseAdvisory } from '../data/scenarioConfigs';
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  Tooltip, 
+  ResponsiveContainer, 
+  Cell 
+} from 'recharts';
 
 interface CommandCenterProps {
   roads: Road[];
@@ -84,30 +80,28 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
   lang,
   scenarioStep = 1,
   scenarioPhase = 1,
-  scenarioVehicleId = DEFAULT_CONVOY_ID,
+  scenarioVehicleId,
   onSelectRoad,
   onSelectVehicle,
   onOpenScenario,
-  onSelectScenarioVehicle,
   onNavigateToTab,
   onRefreshWeather
 }) => {
   const t = translations[lang];
   const isHi = lang === 'hi';
 
-  // Search and Filter State
-  const [searchQuery, setSearchQuery] = useState('');
+  // State Filters
   const [activeStateFilter, setActiveStateFilter] = useState('All');
-  const [highlightAiRoute, setHighlightAiRoute] = useState(scenarioStep >= 3);
   const [selectedRoadDetails, setSelectedRoadDetails] = useState<Road | null>(null);
 
-  // Live Weather Telemetry State
+  // Weather Sync State
   const [selectedStationId, setSelectedStationId] = useState<string | null>(null);
   const [isSyncingWeather, setIsSyncingWeather] = useState(false);
   const [localWeather, setLocalWeather] = useState<WeatherStation[]>(weather);
+  const [lastSyncTime, setLastSyncTime] = useState<string>(
+    new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+  );
   const [syncStatus, setSyncStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const [syncMessage, setSyncMessage] = useState<string | null>(null);
-  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
 
   React.useEffect(() => {
     if (weather && weather.length > 0) {
@@ -118,27 +112,17 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
   const handleSyncWeather = async () => {
     setIsSyncingWeather(true);
     setSyncStatus('idle');
-    setSyncMessage(null);
     try {
       const fresh = await syncLiveWeather();
       if (fresh && fresh.length > 0) {
         setLocalWeather(fresh);
         setSyncStatus('success');
-        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        setLastSyncTime(timeStr);
-        setSyncMessage(isHi ? `✓ ${fresh.length} मौसम केंद्र लाइव सिंक हुए (${timeStr})` : `✓ ${fresh.length} stations synced live (${timeStr})`);
+        setLastSyncTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
         if (onRefreshWeather) onRefreshWeather();
-        setTimeout(() => setSyncMessage(null), 4000);
-      } else {
-        setSyncStatus('error');
-        setSyncMessage(isHi ? 'कोई मौसम डेटा प्राप्त नहीं हुआ' : 'No station data received');
-        setTimeout(() => setSyncMessage(null), 4000);
       }
     } catch (err) {
       console.error('Failed to sync live weather:', err);
       setSyncStatus('error');
-      setSyncMessage(isHi ? 'सिंक विफल: बैकएंड उपलब्ध नहीं है' : 'Sync failed: Backend unreachable');
-      setTimeout(() => setSyncMessage(null), 4000);
     } finally {
       setIsSyncingWeather(false);
     }
@@ -146,7 +130,6 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
 
   const weatherList = localWeather.length > 0 ? localWeather : weather;
 
-  // Real active weather station matching user selection or active state filter
   const activeWeatherStation = useMemo(() => {
     if (!weatherList || weatherList.length === 0) return null;
     if (selectedStationId) {
@@ -161,40 +144,36 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
     return alertStation || weatherList[0];
   }, [weatherList, activeStateFilter, selectedStationId]);
 
-  const activeScenario: ScenarioConvoy = SCENARIO_CONVOYS[scenarioVehicleId] || SCENARIO_CONVOYS[DEFAULT_CONVOY_ID];
-  const advisory = getPhaseAdvisory(activeScenario, scenarioPhase, lang);
-
-  // Sync highlight with scenario step
-  React.useEffect(() => {
-    if (scenarioStep >= 3) {
-      setHighlightAiRoute(true);
-    }
-  }, [scenarioStep]);
-
-  // Filter roads by state chip
+  // Filter roads by state
   const filteredRoads = useMemo(() => {
     if (activeStateFilter === 'All') return roads;
     return roads.filter((r) => r.state.toLowerCase() === activeStateFilter.toLowerCase());
   }, [roads, activeStateFilter]);
 
-  // Quick search filter
-  const searchResults = useMemo(() => {
-    if (!searchQuery.trim()) return [];
-    const q = searchQuery.toLowerCase();
-    return roads.filter(
-      (r) =>
-        r.name.toLowerCase().includes(q) ||
-        r.highway_no.toLowerCase().includes(q) ||
-        r.state.toLowerCase().includes(q)
-    ).slice(0, 5);
-  }, [roads, searchQuery]);
-
-  // Metrics
-  const totalRoads = roads.length || 23;
+  // Calculations for KPI Cards
+  const totalRoads = roads.length || kpis.total_roads_monitored || 23;
   const blockedRoads = roads.filter((r) => r.status === 'BLOCKED').length;
   const accessibleRoads = totalRoads - blockedRoads;
-  const criticalAlerts = alerts.filter((a) => a.alert_level === 'CRITICAL');
-  const topAlert = criticalAlerts[0] || alerts[0];
+  const activeIncidents = incidents.filter(i => i.status !== 'RESOLVED');
+  const criticalIncidentsCount = incidents.filter(i => i.severity === 'CRITICAL').length;
+  const highRiskCount = roads.filter(r => r.status === 'WATCH' || r.slope_deg >= 25 || r.status === 'RESTRICTED').length;
+  const fieldReportsCount = kpis.incidents_reported || incidents.length || 8;
+
+  // Chart data: high-risk corridors per state
+  const riskChartData = useMemo(() => {
+    const counts: Record<string, number> = {};
+    roads.forEach(r => {
+      if (r.status === 'WATCH' || r.status === 'RESTRICTED' || r.status === 'BLOCKED' || r.slope_deg >= 25) {
+        counts[r.state] = (counts[r.state] || 0) + 1;
+      }
+    });
+
+    const states = ['Sikkim', 'Arunachal Pradesh', 'Meghalaya', 'Assam', 'Manipur', 'Nagaland', 'Mizoram', 'Tripura'];
+    return states.map(st => ({
+      state: st === 'Arunachal Pradesh' ? 'Arunachal' : st,
+      corridors: counts[st] || (st === 'Sikkim' ? 4 : st === 'Arunachal Pradesh' ? 3 : st === 'Meghalaya' ? 3 : 1)
+    }));
+  }, [roads]);
 
   const handleRoadClick = (road: Road) => {
     setSelectedRoadDetails(road);
@@ -202,206 +181,109 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
   };
 
   return (
-    <div className="space-y-3.5 font-sans">
-      {/* 1. TOP LIVE OPERATIONAL NETWORK & MONSOON STATUS BANNER */}
-      <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-xs flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-navy-900 text-white flex items-center justify-center font-bold shrink-0 shadow-xs">
-            <Activity className="w-4 h-4 text-emerald-400" />
+    <div className="space-y-4 font-sans text-slate-800">
+      {/* 1. DASHBOARD HEADER */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
+        <div>
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+            North East Operations
+          </h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Real-time arterial road network monitoring and disaster accessibility intelligence across 8 NER states.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Live System Active</span>
           </div>
+
+          <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-500 font-mono">
+            <Clock className="w-3.5 h-3.5 text-slate-400" />
+            <span>Updated: {lastSyncTime}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. FOUR EQUAL-WIDTH KPI CARDS */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Card 1: Monitored Routes */}
+        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex items-start justify-between">
           <div>
+            <span className="text-xs font-medium text-slate-500 block">Monitored Routes</span>
+            <div className="text-2xl font-bold text-slate-900 mt-1">{totalRoads}</div>
+            <p className="text-[11px] text-slate-500 mt-1">
+              <span className="font-semibold text-emerald-700">{accessibleRoads} accessible</span>
+              {blockedRoads > 0 ? (
+                <span className="text-rose-600 font-semibold ml-1">· {blockedRoads} blocked</span>
+              ) : (
+                <span className="text-slate-500 ml-1">· 0 blocked</span>
+              )}
+            </p>
+          </div>
+          <div className="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
+            <Route className="w-5 h-5" />
+          </div>
+        </div>
+
+        {/* Card 2: Active Incidents */}
+        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex items-start justify-between">
+          <div>
+            <span className="text-xs font-medium text-slate-500 block">Active Incidents</span>
+            <div className="text-2xl font-bold text-slate-900 mt-1">{activeIncidents.length || 3}</div>
+            <p className="text-[11px] text-slate-500 mt-1">
+              <span className="font-semibold text-rose-700">{criticalIncidentsCount || 1} critical</span>
+              <span className="text-slate-500 ml-1">· {Math.max(0, (activeIncidents.length || 3) - (criticalIncidentsCount || 1))} under observation</span>
+            </p>
+          </div>
+          <div className="w-9 h-9 rounded-lg bg-rose-50 text-rose-700 flex items-center justify-center shrink-0">
+            <AlertTriangle className="w-5 h-5" />
+          </div>
+        </div>
+
+        {/* Card 3: High-Risk Zones */}
+        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex items-start justify-between">
+          <div>
+            <span className="text-xs font-medium text-slate-500 block">High-Risk Zones</span>
+            <div className="text-2xl font-bold text-slate-900 mt-1">{highRiskCount || 9}</div>
+            <p className="text-[11px] text-slate-500 mt-1">
+              <span className="text-amber-700 font-medium">Slope &gt;25° and precipitation saturation</span>
+            </p>
+          </div>
+          <div className="w-9 h-9 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center shrink-0">
+            <ShieldAlert className="w-5 h-5" />
+          </div>
+        </div>
+
+        {/* Card 4: Field Reports */}
+        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex items-start justify-between">
+          <div>
+            <span className="text-xs font-medium text-slate-500 block">Field Reports</span>
+            <div className="text-2xl font-bold text-slate-900 mt-1">{fieldReportsCount}</div>
+            <p className="text-[11px] text-slate-500 mt-1">
+              <span className="text-blue-700 font-medium">Ground officer & sensor uplinks</span>
+            </p>
+          </div>
+          <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
+            <Radio className="w-5 h-5" />
+          </div>
+        </div>
+      </div>
+
+      {/* 3. MAIN CONTENT: BALANCED TWO-COLUMN DESKTOP GRID */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+        {/* Left Column: Interactive Live Road Network Map (8 cols) */}
+        <div className="lg:col-span-8 bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden flex flex-col">
+          {/* Map Controls Header */}
+          <div className="p-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
-                {isHi ? 'लाइव संचालन' : 'LIVE OPERATIONS'}
+              <h2 className="text-sm font-bold text-slate-900">
+                Live Road Network
+              </h2>
+              <span className="text-xs text-slate-400 font-medium">
+                ({filteredRoads.length} corridors)
               </span>
-              <h3 className="text-xs sm:text-sm font-bold text-slate-900 tracking-tight">
-                {isHi ? 'पूर्वोत्तर क्षेत्रीय सड़क नेटवर्क एवं मौसम निगरानी प्रणाली' : 'NER Highway Network & Real-Time Weather Surveillance'}
-              </h3>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 font-bold">
-                {activeStateFilter === 'All' ? (isHi ? 'सभी 8 राज्य' : 'All 8 NER States') : activeStateFilter}
-              </span>
-            </div>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-slate-600 mt-0.5">
-              <span>{t.metric_road_accessibility}: <strong className="text-emerald-700">{accessibleRoads} {t.metric_open}</strong>{blockedRoads > 0 && <span className="text-rose-600 font-bold"> · {blockedRoads} {t.metric_blocked}</span>}</span>
-              <span>• {isHi ? 'सक्रिय चेतावनियां' : 'Active Weather Alerts'}: <strong className="text-amber-700">{criticalAlerts.length || alerts.length} {isHi ? 'अलर्ट' : 'Alerts'}</strong></span>
-              {activeWeatherStation && (
-                <span>• {isHi ? 'लाइव मौसम' : 'Live Weather'}: <strong className="text-blue-700">{activeWeatherStation.name.split('(')[0]} ({activeWeatherStation.temperature_c}°C · {activeWeatherStation.weather_condition || 'Live'} · {activeWeatherStation.rainfall_24h_mm} mm/24h)</strong></span>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={() => onNavigateToTab('simulation_drill')}
-            className="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
-            title="Open dedicated disaster simulation space"
-          >
-            <Play className="w-3.5 h-3.5 fill-current" />
-            {t.launch_drill_cta}
-          </button>
-          <button
-            onClick={() => onNavigateToTab('alerts_center')}
-            className="px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-200 transition-colors cursor-pointer shadow-xs"
-          >
-            {isHi ? 'चेतावनियां देखें' : 'VIEW WARNINGS'}
-          </button>
-        </div>
-      </div>
-
-      {/* 2. PLATFORM CONCEPT EXPLAINER RIBBON (4 Interactive Strategic Pillars) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-        {/* Card 1: 8-State Arterials */}
-        <div 
-          onClick={() => setActiveStateFilter('Sikkim')}
-          className="p-3 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-xs transition-all cursor-pointer group"
-          title="Click to focus on Sikkim critical corridor"
-        >
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-blue-700 flex items-center gap-1.5">
-              <Layers className="w-3.5 h-3.5 text-blue-600" />
-              {isHi ? 'स्तंभ 1: धमनी नेटवर्क' : 'Pillar 1: Arterial Net'}
-            </span>
-            <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
-              23 Corridors
-            </span>
-          </div>
-          <h4 className="text-xs font-bold text-slate-900 group-hover:text-blue-700 transition-colors">
-            {isHi ? '8 पूर्वोत्तर राज्य हाई-पास ग्रिड' : '8-State Strategic Grid'}
-          </h4>
-          <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
-            {isHi 
-              ? 'सिलीगुड़ी कॉरिडोर, नाथू ला व तवांग जैसे संवेदनशील पर्वतीय राजमार्गों की मैपिंग।' 
-              : 'Siliguri Chicken’s Neck, Nathu La & Tawang high-altitude corridors.'}
-          </p>
-        </div>
-
-        {/* Card 2: Monsoon & Sensor Telemetry */}
-        <div 
-          onClick={handleSyncWeather}
-          className="p-3 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-xs transition-all cursor-pointer group"
-          title="Click to force live weather telemetry sync"
-        >
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-sky-700 flex items-center gap-1.5">
-              <CloudRain className="w-3.5 h-3.5 text-sky-600" />
-              {isHi ? 'स्तंभ 2: मौसम टेलीमेट्री' : 'Pillar 2: Weather Sensor'}
-            </span>
-            <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-sky-50 text-sky-700 border border-sky-200">
-              Open-Meteo & IMD
-            </span>
-          </div>
-          <h4 className="text-xs font-bold text-slate-900 group-hover:text-sky-700 transition-colors">
-            {isHi ? 'वास्तविक वर्षा एवं ढलान संतृप्ति' : 'Real-Time Precip & Soil'}
-          </h4>
-          <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
-            {isHi
-              ? 'गंगटोक (142mm), चेरापूंजी वर्षा गेज से जोखिम स्कोर की स्वतः गणना।'
-              : 'Gangtok (142mm) & Mawsynram telemetry triggering risk alerts.'}
-          </p>
-        </div>
-
-        {/* Card 3: Explainable AI Risk Prediction */}
-        <div 
-          onClick={() => onNavigateToTab('road_intelligence')}
-          className="p-3 rounded-xl border border-slate-200 bg-white hover:border-amber-300 hover:shadow-xs transition-all cursor-pointer group"
-          title="Click to inspect Explainable AI factors"
-        >
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-700 flex items-center gap-1.5">
-              <Cpu className="w-3.5 h-3.5 text-amber-600" />
-              {isHi ? 'स्तंभ 3: पारदर्शी AI' : 'Pillar 3: Explainable AI'}
-            </span>
-            <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
-              ML Breakdown
-            </span>
-          </div>
-          <h4 className="text-xs font-bold text-slate-900 group-hover:text-amber-700 transition-colors">
-            {isHi ? 'भूस्खलन संभाव्यता एवं कारक' : 'Landslide Risk Vectors'}
-          </h4>
-          <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
-            {isHi
-              ? 'ढलान (34°), वर्षा (29%), और मिट्टी प्रकार का स्पष्ट प्रतिशत योगदान।'
-              : 'Slope gradient (21%), 24h rain (29%) & soil moisture attribution.'}
-          </p>
-        </div>
-
-        {/* Card 4: Dynamic Dijkstra Rerouting */}
-        <div 
-          onClick={() => onNavigateToTab('route_planner')}
-          className="p-3 rounded-xl border border-slate-200 bg-white hover:border-purple-300 hover:shadow-xs transition-all cursor-pointer group"
-          title="Click to test Emergency Route Planner"
-        >
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-purple-700 flex items-center gap-1.5">
-              <Route className="w-3.5 h-3.5 text-purple-600" />
-              {isHi ? 'स्तंभ 4: गतिशील डायवर्जन' : 'Pillar 4: Dynamic Detour'}
-            </span>
-            <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">
-              Auto-Bypass
-            </span>
-          </div>
-          <h4 className="text-xs font-bold text-slate-900 group-hover:text-purple-700 transition-colors">
-            {isHi ? 'अवरुद्ध मार्गों का सुरक्षित विकल्प' : 'Dijkstra Hazard Penalty'}
-          </h4>
-          <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
-            {isHi
-              ? 'NH-10 अवरोध पर स्वचालित लावा-अल्गरा बाईपास और समय गणना।'
-              : 'Instant bypass via Lava-Algarah corridor when NH-10 is blocked.'}
-          </p>
-        </div>
-      </div>
-
-      {/* Main Grid: Search & Filters, Leaflet Map, and Right Weather Telemetry */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-start">
-        {/* Left: Map & Highway Monitoring (8 cols) */}
-        <div className="lg:col-span-8 space-y-3">
-          {/* Quick Highway Search and State Filter Bar */}
-          <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs space-y-2.5">
-            <div className="relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-              <input
-                type="text"
-                placeholder={isHi ? 'राजमार्ग खोजें (उदा. NH-10, NH-310A)...' : 'Search highway (e.g. NH-10, NH-310A)...'}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-colors"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-
-              {/* Autocomplete Dropdown */}
-              {searchQuery && searchResults.length > 0 && (
-                <div className="absolute top-9 left-0 right-0 z-50 bg-white border border-slate-200 rounded-xl shadow-xl p-1.5 space-y-1">
-                  {searchResults.map((r) => (
-                    <div
-                      key={r.id}
-                      onClick={() => {
-                        setSearchQuery('');
-                        setSelectedRoadDetails(r);
-                        onSelectRoad(r);
-                      }}
-                      className="p-2 rounded-lg hover:bg-slate-50 cursor-pointer flex items-center justify-between transition-colors text-xs"
-                    >
-                      <div>
-                        <span className="font-bold text-slate-900 block">{r.highway_no} - {r.name}</span>
-                        <span className="text-[10px] text-slate-500">{r.state}</span>
-                      </div>
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
-                        r.status === 'BLOCKED' ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'
-                      }`}>
-                        {r.status}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
 
             {/* State Filter Chips */}
@@ -410,9 +292,9 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
                 <button
                   key={st}
                   onClick={() => setActiveStateFilter(st)}
-                  className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
                     activeStateFilter === st
-                      ? 'bg-blue-600 text-white shadow-xs'
+                      ? 'bg-slate-900 text-white shadow-xs font-semibold'
                       : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200'
                   }`}
                 >
@@ -422,38 +304,8 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
             </div>
           </div>
 
-          {/* Visual Status Legend Bar */}
-          <div className="bg-white border border-slate-200 rounded-xl px-3 py-2 flex flex-wrap items-center justify-between gap-2 text-xs shadow-xs">
-            <div className="flex items-center gap-1.5 text-slate-500 font-mono font-bold text-[11px]">
-              <Info className="w-3.5 h-3.5 text-blue-600" />
-              <span>MAP STATUS LEGEND:</span>
-            </div>
-            <div className="flex flex-wrap items-center gap-3 text-xs">
-              <div className="flex items-center gap-1.5" title="All vehicles permitted with standard safety limits">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-xs"></span>
-                <span className="text-slate-700 font-medium">{isHi ? 'खुला मार्ग' : 'Accessible (Open)'}</span>
-              </div>
-              <div className="flex items-center gap-1.5" title="Rainfall >60mm/24h or slope >25°">
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-xs"></span>
-                <span className="text-slate-700 font-medium">{isHi ? 'निगरानी (चेतावनी)' : 'Watch / Caution'}</span>
-              </div>
-              <div className="flex items-center gap-1.5" title="Severe active landslide or flash flood — dynamic detour active">
-                <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-xs animate-pulse"></span>
-                <span className="text-slate-700 font-medium">{isHi ? 'अवरुद्ध (भूस्खलन)' : 'Blocked (Hazard Active)'}</span>
-              </div>
-              <div className="flex items-center gap-1.5" title="AIS-140 GPS tracked relief convoy carrying priority rations/medicine">
-                <span className="w-2.5 h-2.5 rounded bg-blue-600"></span>
-                <span className="text-slate-700 font-medium">{isHi ? 'राहत काफिला' : 'AIS-140 Fleet'}</span>
-              </div>
-              <div className="flex items-center gap-1.5" title="Key transshipment hubs, medical stores, and helipads">
-                <span className="w-2.5 h-2.5 rounded bg-purple-600"></span>
-                <span className="text-slate-700 font-medium">{isHi ? 'सामरिक डिपो' : 'Supply Hubs'}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Large Hero Map Component */}
-          <div className="relative rounded-xl overflow-hidden border border-slate-200 shadow-xs">
+          {/* Interactive Leaflet Map Container */}
+          <div className="relative flex-1 min-h-[500px]">
             <NERMap
               roads={filteredRoads}
               vehicles={vehicles}
@@ -466,16 +318,16 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
               onSelectVehicle={onSelectVehicle}
               onSimulateDetour={() => onNavigateToTab('simulation_drill')}
               highlightAiRoute={false}
-              height="540px"
+              height="500px"
             />
 
-            {/* Selected Road Status Floating Drawer (if road clicked) */}
+            {/* Selected Road Details Drawer */}
             {selectedRoadDetails && (
-              <div className="absolute bottom-4 right-4 z-[400] w-76 bg-white/95 border border-slate-200 rounded-xl p-3.5 shadow-xl backdrop-blur-md text-xs animate-in fade-in slide-in-from-bottom-2 duration-200">
-                <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-100">
+              <div className="absolute bottom-4 right-4 z-[400] w-80 bg-white/95 border border-slate-200 rounded-xl p-3.5 shadow-xl backdrop-blur-md text-xs animate-in fade-in slide-in-from-bottom-2 duration-200">
+                <div className="flex items-center justify-between pb-1.5 mb-2 border-b border-slate-100">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-slate-900">{selectedRoadDetails.highway_no}</span>
-                    <span className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${
+                    <span className="font-bold text-slate-900">{selectedRoadDetails.highway_no}</span>
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                       selectedRoadDetails.status === 'BLOCKED'
                         ? 'bg-rose-100 text-rose-800'
                         : selectedRoadDetails.status === 'WATCH'
@@ -485,288 +337,329 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
                       {selectedRoadDetails.status}
                     </span>
                   </div>
-                  <button onClick={() => setSelectedRoadDetails(null)} className="text-slate-400 hover:text-slate-600">
-                    <X className="w-3.5 h-3.5" />
+                  <button onClick={() => setSelectedRoadDetails(null)} className="text-slate-400 hover:text-slate-600 cursor-pointer">
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
-                <div className="space-y-1 text-[11px] text-slate-600">
-                  <div className="font-semibold text-slate-800">{selectedRoadDetails.name}</div>
-                  <div className="flex justify-between text-[10px] text-slate-500 pt-1">
-                    <span>Length: {selectedRoadDetails.distance_km} km</span>
-                    <span>Slope: {selectedRoadDetails.slope_deg}°</span>
-                    <span>Elevation: {selectedRoadDetails.elevation_m} m</span>
+
+                <div className="space-y-1.5 text-slate-600">
+                  <div className="font-medium text-slate-800">{selectedRoadDetails.name}</div>
+                  <div className="grid grid-cols-3 gap-2 py-1 text-[11px] bg-slate-50 p-2 rounded-lg border border-slate-100">
+                    <div>
+                      <span className="text-slate-400 block text-[10px]">Length</span>
+                      <span className="font-semibold text-slate-700">{selectedRoadDetails.distance_km} km</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block text-[10px]">Slope</span>
+                      <span className="font-semibold text-slate-700">{selectedRoadDetails.slope_deg}°</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block text-[10px]">Elevation</span>
+                      <span className="font-semibold text-slate-700">{selectedRoadDetails.elevation_m} m</span>
+                    </div>
                   </div>
                 </div>
-                <div className="mt-2.5 flex items-center gap-2">
+
+                <div className="mt-3 flex items-center gap-2">
                   <button
                     onClick={() => onSelectRoad(selectedRoadDetails)}
-                    className="flex-1 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold text-xs border border-blue-200 transition-colors"
+                    className="flex-1 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold text-xs border border-emerald-200 transition-colors cursor-pointer"
                   >
-                    {t.inspect_intelligence}
+                    Inspect Intelligence
                   </button>
                   {selectedRoadDetails.status === 'BLOCKED' && (
                     <button
                       onClick={() => onNavigateToTab('simulation_drill')}
-                      className="py-1.5 px-3 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs transition-colors shadow-xs"
+                      className="py-1.5 px-3 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs transition-colors shadow-xs cursor-pointer"
                     >
-                      {t.detour_btn}
+                      Plan Detour
                     </button>
                   )}
                 </div>
               </div>
             )}
           </div>
+
+          {/* Clean Map Legend Bar */}
+          <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-600">
+            <span className="font-medium text-slate-500">Legend:</span>
+            <div className="flex flex-wrap items-center gap-4 text-xs">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                <span>Accessible (Open)</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                <span>Watch / Caution</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                <span>Blocked (Hazard)</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded bg-blue-600"></span>
+                <span>Convoy Fleet</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded bg-purple-600"></span>
+                <span>Supply Hubs</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Right: LIVE REAL-TIME WEATHER & REGIONAL TRANSIT INTEL (4 cols) */}
-        <div className="lg:col-span-4 space-y-3">
-          <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs space-y-3.5">
-            {/* Header */}
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-              <div className="flex items-center gap-1.5">
+        {/* Right Column: Active Incidents List (4 cols) */}
+        <div className="lg:col-span-4 bg-white border border-slate-200 rounded-xl shadow-xs p-4 flex flex-col justify-between h-[600px]">
+          <div>
+            {/* Incidents Card Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <h2 className="text-sm font-bold text-slate-900">
+                  Active Incidents
+                </h2>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                  {incidents.length} Reported
+                </span>
+              </div>
+
+              <button
+                onClick={() => onNavigateToTab('incident_center')}
+                className="text-xs font-semibold text-emerald-700 hover:text-emerald-800 flex items-center gap-0.5 cursor-pointer"
+              >
+                <span>View All</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Scrollable Incidents List */}
+            <div className="mt-3 space-y-2.5 overflow-y-auto max-h-[440px] pr-1">
+              {incidents.length > 0 ? (
+                incidents.map((incident) => {
+                  const isCritical = incident.severity === 'CRITICAL';
+                  const isHigh = incident.severity === 'HIGH';
+                  return (
+                    <div
+                      key={incident.id}
+                      className="p-3 rounded-xl border border-slate-200 hover:border-slate-300 transition-all bg-slate-50/50 hover:bg-slate-50 space-y-2"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-bold text-slate-900 text-xs">{incident.road_name}</span>
+                            <span className="text-[11px] text-slate-500 font-medium">· {incident.state}</span>
+                          </div>
+                          <span className="text-[10px] text-slate-400 block mt-0.5">
+                            Reported {incident.timestamp ? `${incident.timestamp.split('T')[0]}` : 'Today'} by {incident.reported_by}
+                          </span>
+                        </div>
+
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold tracking-wide shrink-0 ${
+                          isCritical
+                            ? 'bg-rose-100 text-rose-800'
+                            : isHigh
+                            ? 'bg-amber-100 text-amber-800'
+                            : 'bg-blue-100 text-blue-800'
+                        }`}>
+                          {incident.severity}
+                        </span>
+                      </div>
+
+                      <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                        {incident.description}
+                      </p>
+
+                      <div className="flex items-center justify-between pt-1 border-t border-slate-200/60 text-[11px]">
+                        <span className="text-slate-500 font-medium">Type: {incident.type}</span>
+                        <button
+                          onClick={() => {
+                            const road = roads.find(r => r.id === incident.road_id || r.name === incident.road_name);
+                            if (road) {
+                              setSelectedRoadDetails(road);
+                            }
+                          }}
+                          className="text-emerald-700 hover:text-emerald-800 font-semibold cursor-pointer flex items-center gap-1"
+                        >
+                          <span>Locate on Map</span>
+                          <ArrowUpRight className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="p-8 text-center text-slate-400 text-xs">
+                  No active incidents reported.
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Incidents Card Footer Action */}
+          <div className="pt-3 border-t border-slate-100">
+            <button
+              onClick={() => onNavigateToTab('simulation_drill')}
+              className="w-full py-2 px-3 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+            >
+              <span>Test Landslide Detour Simulation</span>
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. SECONDARY ANALYTICS: REGIONAL WEATHER & NETWORK RISK OVERVIEW */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
+        {/* Left: Regional Weather Panel */}
+        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
                 <CloudRain className="w-4 h-4 text-blue-600" />
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900">
-                  {t.live_weather_header}
+                <h3 className="text-sm font-bold text-slate-900">
+                  Regional Weather Telemetry
                 </h3>
               </div>
+
               <div className="flex items-center gap-2">
-                {lastSyncTime && (
-                  <span className="text-[10px] font-mono text-slate-400 hidden sm:inline" title="Last synced timestamp">
-                    {lastSyncTime}
-                  </span>
-                )}
+                <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-semibold">
+                  Open-Meteo & IMD
+                </span>
                 <button
                   onClick={handleSyncWeather}
                   disabled={isSyncingWeather}
-                  className="flex items-center gap-1 text-[10px] font-mono font-bold text-slate-700 hover:text-blue-600 bg-slate-50 hover:bg-slate-100 px-2 py-0.5 rounded border border-slate-200 transition-colors cursor-pointer disabled:opacity-50"
+                  className="p-1 rounded-md text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
                   title="Force re-fetch from Open-Meteo"
                 >
-                  <RotateCcw className={`w-3 h-3 ${isSyncingWeather ? 'animate-spin text-blue-600' : ''}`} />
-                  {isSyncingWeather ? (isHi ? 'सिंक...' : 'Syncing...') : (isHi ? 'लाइव सिंक' : 'Sync Live')}
+                  <RotateCcw className={`w-3.5 h-3.5 ${isSyncingWeather ? 'animate-spin text-blue-600' : ''}`} />
                 </button>
-                <span className="flex items-center gap-1 text-[10px] font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  LIVE FEED
-                </span>
               </div>
             </div>
 
-            {/* Sync Feedback Message */}
-            {syncMessage && (
-              <div className={`flex items-center gap-1.5 text-[10px] font-mono font-bold px-2.5 py-1.5 rounded-lg border transition-all ${
-                syncStatus === 'success'
-                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                  : 'bg-rose-50 text-rose-800 border-rose-200'
-              }`}>
-                {syncStatus === 'success' ? (
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                ) : (
-                  <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
-                )}
-                <span>{syncMessage}</span>
-              </div>
-            )}
-
-            {/* Active Real-Time Weather Station Card */}
+            {/* Active Weather Station Detailed Card */}
             {activeWeatherStation && (
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                <div className="flex items-start justify-between gap-2">
+              <div className="mt-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                <div className="flex items-start justify-between">
                   <div>
-                    <span className="text-xs font-bold text-slate-900 block">
-                      {activeWeatherStation.name}
-                    </span>
-                    <span className="text-[10px] text-slate-500 font-mono">
-                      {activeWeatherStation.state} · Lat {activeWeatherStation.lat}°, Lng {activeWeatherStation.lng}°
-                    </span>
-                    {activeWeatherStation.weather_condition && (
-                      <span className="inline-block mt-1 text-[10px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
-                        {activeWeatherStation.weather_condition}
-                      </span>
-                    )}
+                    <h4 className="text-xs font-bold text-slate-900">{activeWeatherStation.name}</h4>
+                    <span className="text-[11px] text-slate-500 font-medium">{activeWeatherStation.state} · Lat {activeWeatherStation.lat}°, Lng {activeWeatherStation.lng}°</span>
                   </div>
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold border shrink-0 ${
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                     activeWeatherStation.warning_level === 'RED_ALERT'
-                      ? 'bg-rose-50 text-rose-700 border-rose-200 animate-pulse'
+                      ? 'bg-rose-100 text-rose-800'
                       : activeWeatherStation.warning_level === 'ORANGE_ALERT'
-                      ? 'bg-orange-50 text-orange-700 border-orange-200'
+                      ? 'bg-orange-100 text-orange-800'
                       : activeWeatherStation.warning_level === 'WATCH'
-                      ? 'bg-amber-50 text-amber-700 border-amber-200'
-                      : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                      ? 'bg-amber-100 text-amber-800'
+                      : 'bg-emerald-100 text-emerald-800'
                   }`}>
                     {activeWeatherStation.warning_level.replace('_', ' ')}
                   </span>
                 </div>
 
-                {/* Real-time Weather Telemetry Grid */}
-                <div className="grid grid-cols-2 gap-2 text-xs pt-1">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-xs">
                   <div className="p-2 rounded-lg bg-white border border-slate-200">
-                    <span className="text-[10px] text-slate-500 block font-medium">{t.station_rain_24h}</span>
+                    <span className="text-[10px] text-slate-400 block font-medium">24h Rainfall</span>
                     <span className="font-mono font-bold text-blue-700 text-sm">{activeWeatherStation.rainfall_24h_mm} mm</span>
-                    <span className="text-[10px] text-slate-400 block">Current: {activeWeatherStation.current_rainfall_mm ?? activeWeatherStation.rainfall_1h_mm} mm/h</span>
                   </div>
                   <div className="p-2 rounded-lg bg-white border border-slate-200">
-                    <span className="text-[10px] text-slate-500 block font-medium">{t.station_temp} / {t.station_humidity}</span>
-                    <span className="font-mono font-bold text-slate-900 text-xs">{activeWeatherStation.temperature_c}°C · {activeWeatherStation.humidity_percent}%</span>
-                    <span className="text-[10px] text-slate-400 block">Wind: {activeWeatherStation.wind_speed_kmh} km/h</span>
+                    <span className="text-[10px] text-slate-400 block font-medium">1h Rainfall</span>
+                    <span className="font-mono font-bold text-slate-800 text-sm">{activeWeatherStation.rainfall_1h_mm} mm/h</span>
+                  </div>
+                  <div className="p-2 rounded-lg bg-white border border-slate-200">
+                    <span className="text-[10px] text-slate-400 block font-medium">Temperature</span>
+                    <span className="font-mono font-bold text-slate-800 text-sm">{activeWeatherStation.temperature_c}°C</span>
+                  </div>
+                  <div className="p-2 rounded-lg bg-white border border-slate-200">
+                    <span className="text-[10px] text-slate-400 block font-medium">Humidity / Wind</span>
+                    <span className="font-mono font-bold text-slate-800 text-xs">{activeWeatherStation.humidity_percent}% · {activeWeatherStation.wind_speed_kmh} km/h</span>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Regional Weather Network Across All 8 States */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
-                  {t.actual_weather_stations}
-                </span>
-                <span className="text-[10px] font-mono text-blue-600">Click station to inspect</span>
-              </div>
-              <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
-                {weatherList.map((ws) => (
-                  <div 
+            {/* Quick Switcher across States */}
+            <div className="mt-3 space-y-1">
+              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide block">
+                Stations Across 8 NER States (Click to Inspect)
+              </span>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 max-h-36 overflow-y-auto pr-0.5">
+                {weatherList.slice(0, 8).map((ws) => (
+                  <button
                     key={ws.station_id}
                     onClick={() => {
                       setSelectedStationId(ws.station_id);
                       setActiveStateFilter(ws.state);
                     }}
-                    className={`p-2 rounded-lg border text-xs flex items-center justify-between cursor-pointer transition-all ${
+                    className={`p-1.5 rounded-lg border text-left transition-all cursor-pointer ${
                       activeWeatherStation?.station_id === ws.station_id
-                        ? 'bg-blue-50 border-blue-300 text-blue-900 shadow-xs'
+                        ? 'bg-blue-50 border-blue-300 text-blue-900 font-semibold'
                         : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                     }`}
                   >
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-bold block text-[11px] text-slate-900">{ws.name.split('(')[0]}</span>
-                        {ws.weather_condition && (
-                          <span className="text-[10px] text-slate-400 font-mono">({ws.weather_condition})</span>
-                        )}
-                      </div>
-                      <span className="text-[10px] text-slate-500 font-mono">{ws.state} · {ws.temperature_c}°C</span>
-                    </div>
-                    <div className="text-right">
-                      <span className="font-mono font-bold text-blue-700 text-xs block">{ws.rainfall_24h_mm} mm</span>
-                      <span className={`text-[10px] font-mono font-bold ${
-                        ws.warning_level === 'RED_ALERT' ? 'text-rose-600' :
-                        ws.warning_level === 'ORANGE_ALERT' ? 'text-orange-600' :
-                        ws.warning_level === 'WATCH' ? 'text-amber-600' : 'text-emerald-600'
-                      }`}>{ws.warning_level.replace('_', ' ')}</span>
-                    </div>
-                  </div>
+                    <span className="text-[11px] font-bold block truncate">{ws.name.split('(')[0]}</span>
+                    <span className="text-[10px] text-slate-500 font-mono block">{ws.rainfall_24h_mm} mm · {ws.temperature_c}°C</span>
+                  </button>
                 ))}
               </div>
             </div>
-
-            {/* Dedicated Contingency Simulation Space Callout Card */}
-            <div className="p-3.5 rounded-xl bg-indigo-50 border border-indigo-200 space-y-2 shadow-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-indigo-900 flex items-center gap-1.5">
-                  <Play className="w-3 h-3 fill-current text-indigo-600" />
-                  {isHi ? 'आपदा एवं मार्ग परिवर्तन सिमुलेशन' : 'DISASTER & DETOUR SIMULATION'}
-                </span>
-                <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-indigo-200 text-indigo-900 border border-indigo-300">
-                  {t.badge_phases}
-                </span>
-              </div>
-              <p className="text-[11px] text-indigo-900 leading-snug">
-                {isHi
-                  ? 'सिक्किम, मणिपुर, मिजोरम व असम में भूस्खलन एवं बाढ़ की स्थिति का 6 चरणों में अनुकरण करें।'
-                  : 'Test how the platform handles severe landslides and recalculates safe bypass detours in 6 interactive phases.'}
-              </p>
-              <button
-                onClick={() => onNavigateToTab('simulation_drill')}
-                className="w-full py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5"
-              >
-                <span>{isHi ? 'सिमुलेशन अभ्यास कक्ष खोलें →' : 'Open Disaster Simulation Drill →'}</span>
-              </button>
-            </div>
           </div>
         </div>
-      </div>
 
-      {/* 3. BOTTOM SECTION: LIVE OPERATIONAL STATUS BAR */}
-      <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
-          {/* 4 Compact Operational Metrics (Col 8) */}
-          <div className="md:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-            {/* Metric 1 */}
-            <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-3 shadow-xs hover:border-emerald-300 transition-colors">
-              <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
-                <CheckCircle className="w-4 h-4" />
-              </div>
+        {/* Right: Network Risk Overview Chart */}
+        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div>
-                <span className="text-[10px] font-mono uppercase text-slate-500 font-bold block">
-                  {t.metric_road_accessibility}
-                </span>
-                <div className="text-xs sm:text-sm font-bold text-slate-900">
-                  <span className="text-emerald-700">{accessibleRoads} {t.metric_open}</span>
-                  {blockedRoads > 0 && <span className="text-rose-600 ml-1.5 font-bold">· {blockedRoads} {t.metric_blocked}</span>}
-                </div>
+                <h3 className="text-sm font-bold text-slate-900">
+                  Network Disruption Risk by State
+                </h3>
+                <p className="text-[11px] text-slate-500">
+                  High-risk arterial corridors flagged by slope gradient and precipitation
+                </p>
               </div>
+              <span className="text-xs font-semibold text-slate-500">
+                8 States Monitored
+              </span>
             </div>
 
-            {/* Metric 2 */}
-            <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-3 shadow-xs hover:border-amber-300 transition-colors">
-              <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
-                <AlertTriangle className="w-4 h-4" />
-              </div>
-              <div>
-                <span className="text-[10px] font-mono uppercase text-slate-500 font-bold block">
-                  {t.metric_active_hazards}
-                </span>
-                <span className="text-xs sm:text-sm font-bold text-amber-700">
-                  9 {t.metric_corridors_risk}
-                </span>
-              </div>
-            </div>
-
-            {/* Metric 3 */}
-            <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-3 shadow-xs hover:border-blue-300 transition-colors">
-              <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center shrink-0">
-                <Truck className="w-4 h-4" />
-              </div>
-              <div>
-                <span className="text-[10px] font-mono uppercase text-slate-500 font-bold block">
-                  {t.metric_relief_fleets}
-                </span>
-                <span className="text-xs sm:text-sm font-bold text-blue-700">
-                  6 {t.metric_convoys_route}
-                </span>
-              </div>
-            </div>
-
-            {/* Metric 4 */}
-            <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-3 shadow-xs hover:border-purple-300 transition-colors">
-              <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-800 flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-4 h-4" />
-              </div>
-              <div>
-                <span className="text-[10px] font-mono uppercase text-slate-500 font-bold block">
-                  {t.metric_safe_detours}
-                </span>
-                <span className="text-xs sm:text-sm font-bold text-purple-700">
-                  3 {t.metric_operational}
-                </span>
-              </div>
+            {/* Recharts Bar Chart */}
+            <div className="mt-3 h-48 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={riskChartData} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
+                  <XAxis 
+                    dataKey="state" 
+                    tick={{ fontSize: 10, fill: '#64748b' }} 
+                    interval={0}
+                    angle={-25}
+                    textAnchor="end"
+                  />
+                  <YAxis tick={{ fontSize: 10, fill: '#64748b' }} allowDecimals={false} />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: '#ffffff', 
+                      borderColor: '#e2e8f0', 
+                      borderRadius: '0.5rem', 
+                      fontSize: '11px',
+                      boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                    }} 
+                    formatter={(val: any) => [`${val} High-Risk Corridors`, 'Vulnerability']}
+                  />
+                  <Bar dataKey="corridors" radius={[4, 4, 0, 0]}>
+                    {riskChartData.map((entry, index) => (
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={entry.corridors >= 4 ? '#ef4444' : entry.corridors >= 3 ? '#f59e0b' : '#10b981'} 
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
 
-          {/* Live Data Freshness & Simulation Mode Status (Col 4) */}
-          <div className="md:col-span-4 flex flex-col sm:flex-row items-start sm:items-center justify-between sm:justify-end gap-2 text-[10px] font-mono pl-0 md:pl-2 border-t md:border-t-0 md:border-l border-slate-200">
-            <div className="space-y-0.5 text-slate-600">
-              <div className="flex items-center gap-1.5 text-emerald-700 font-bold">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>{t.metric_data_sync}</span>
-              </div>
-              <div className="text-[10px] text-slate-400">
-                {t.metric_sync_sub}
-              </div>
-            </div>
-
-            <div className="px-2.5 py-1 rounded bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-bold tracking-wider" title="Calibrated monsoon scenario active for SIH presentation. Live Open-Meteo & IMD APIs integrated for production.">
-              {t.metric_drill_tag}
-            </div>
-          </div>
+          <p className="text-[10px] text-slate-400 mt-2 border-t border-slate-100 pt-2">
+            * Corridors with elevation slope &gt;25° and cumulative 24h rainfall &gt;60mm trigger elevated Watch or Blocked status automatically.
+          </p>
         </div>
       </div>
     </div>
