@@ -34,7 +34,7 @@ logger = logging.getLogger("ner_logistics.store")
 
 class DataStore:
     def __init__(self):
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
         self._init_database()
         self.load_from_database()
 
