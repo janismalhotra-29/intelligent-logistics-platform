@@ -158,12 +158,51 @@ To run the entire hardened stack locally or on a single Linux VPS:
 
 ---
 
-## 6. Post-Deployment Verification Checklist
+## 6. Database Backup & Disaster Recovery Procedures
+
+### 6.1 PostgreSQL / PostGIS Backups (Production)
+For cloud PostgreSQL deployments, execute automated daily compressed custom-format dumps:
+
+```bash
+# Run backup (excludes transient connection logs, preserves spatial schemas)
+pg_dump -Fc --no-owner --no-privileges \
+  -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" \
+  -f "backups/ner_logistics_$(date +%Y%m%d_%H%M%S).dump"
+```
+
+### 6.2 Restoration Procedure
+To restore a database backup onto a staging or recovered production instance:
+
+```bash
+# 1. Ensure PostGIS extension is installed
+psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -c "CREATE EXTENSION IF NOT EXISTS postgis;"
+
+# 2. Restore schema and data cleanly
+pg_restore --clean --if-exists --no-owner --no-privileges \
+  -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" \
+  "backups/ner_logistics_YYYYMMDD_HHMMSS.dump"
+
+# 3. Re-verify table counts and spatial indexes
+psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -c "SELECT COUNT(*) FROM incidents; SELECT COUNT(*) FROM field_reports;"
+```
+
+### 6.3 Local SQLite Backup (Development / Single-Node)
+When running the local SQLite engine:
+```bash
+# Atomic SQLite online backup using SQLite CLI
+sqlite3 backend/data/ner_logistics.db ".backup 'backups/ner_logistics_$(date +%Y%m%d).db'"
+```
+
+---
+
+## 7. Post-Deployment Verification Checklist
 
 - [ ] HTTPS is active with a valid SSL certificate on both frontend and backend.
 - [ ] Database port 5432 is private and not exposed to the public internet.
 - [ ] `/health` returns status `HEALTHY` and reports `database_status: OPERATIONAL`.
+- [ ] Structured observability middleware generates `X-Correlation-ID` for all API calls.
 - [ ] Frontend map loads tiles without Mixed Content warnings.
 - [ ] Photo upload with oversized or non-image files returns 413 or 415 error without crashing backend.
 - [ ] Vehicle diversion and scenario reset require valid `ADMIN_API_KEY` or role authorization in production.
 - [ ] Live weather telemetry connects via verified TLS from Open-Meteo.
+

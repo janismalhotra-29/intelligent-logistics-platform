@@ -38,3 +38,19 @@ def test_config_allowed_origins_parsing():
     assert len(origins) == 2
     assert "https://ner.vercel.app" in origins
     assert "http://localhost:3000" in origins
+
+
+def test_observability_correlation_id(client):
+    # Auto-generated correlation id
+    response = client.get("/health")
+    assert response.status_code == 200
+    assert "X-Correlation-ID" in response.headers
+    auto_id = response.headers["X-Correlation-ID"]
+    assert len(auto_id) > 0
+
+    # Client-supplied correlation id
+    custom_id = "test-corr-id-9988"
+    response2 = client.get("/health", headers={"X-Correlation-ID": custom_id})
+    assert response2.status_code == 200
+    assert response2.headers["X-Correlation-ID"] == custom_id
+

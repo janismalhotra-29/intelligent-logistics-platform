@@ -7,8 +7,10 @@ dynamic hazard routing, fleet tracking, and field incident reporting for the Nor
 import asyncio
 import json
 import logging
+import time
+import uuid
 from typing import List
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -27,6 +29,10 @@ from backend.app.api.alerts import router as alerts_router
 from backend.app.api.scenario import router as scenario_router
 from backend.app.services.data_store import store
 
+logging.basicConfig(
+    level=logging.INFO if not settings.DEBUG else logging.DEBUG,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+)
 logger = logging.getLogger("ner_logistics")
 
 app = FastAPI(
@@ -34,6 +40,36 @@ app = FastAPI(
     description="AI-Powered Logistics Decision-Support System for the North Eastern Region (NER) of India",
     version="2.0.0"
 )
+
+# Observability middleware: inject correlation ID and log structured request telemetry
+@app.middleware("http")
+async def observability_middleware(request: Request, call_next):
+    correlation_id = request.headers.get("X-Correlation-ID") or str(uuid.uuid4())
+    request.state.correlation_id = correlation_id
+    start_time = time.time()
+    
+    try:
+        response = await call_next(request)
+        duration_ms = (time.time() - start_time) * 1000
+        response.headers["X-Correlation-ID"] = correlation_id
+        logger.info(
+            f"[{correlation_id[:8]}] {request.method} {request.url.path} -> {response.status_code} ({duration_ms:.1f}ms)"
+        )
+        return response
+    except Exception as exc:
+        duration_ms = (time.time() - start_time) * 1000
+        logger.error(
+            f"[{correlation_id[:8]}] Unhandled error on {request.method} {request.url.path} ({duration_ms:.1f}ms): {exc}",
+            exc_info=True
+        )
+        return JSONResponse(
+            status_code=500,
+            content={
+                "detail": "Internal server error. Reference correlation ID for support.",
+                "correlation_id": correlation_id
+            },
+            headers={"X-Correlation-ID": correlation_id}
+        )
 
 # CORS configuration: strict explicit origins loaded from configuration
 app.add_middleware(
