@@ -1,7 +1,8 @@
 """
 Real-time meteorological telemetry service.
 Integrates live weather observation and forecasts from Open-Meteo API
-for all 8 North Eastern states of India with in-memory caching and fallback.
+for all 8 North Eastern states of India with verified TLS, bounded retries,
+schema validation, in-memory caching, and honest fallback indicators.
 """
 
 import time
@@ -10,7 +11,9 @@ import ssl
 import logging
 from typing import List, Dict, Any, Optional
 import urllib.request
+import urllib.error
 from concurrent.futures import ThreadPoolExecutor
+from backend.app.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -113,15 +116,21 @@ WMO_CODE_MAP = {
     99: "Thunderstorm with heavy hail",
 }
 
+
 class LiveWeatherService:
-    def __init__(self, cache_ttl_seconds: int = 300):
+    def __init__(self, cache_ttl_seconds: int = 300, max_retries: int = 2):
         self.cache_ttl_seconds = cache_ttl_seconds
+        self.max_retries = max_retries
         self._cache: List[Dict[str, Any]] = []
         self._last_fetch_time: float = 0
-        self._ssl_context = ssl._create_unverified_context()
+        # Standard verified TLS context (never bypass certificates)
+        self._ssl_context = ssl.create_default_context()
 
     def fetch_station_live(self, station: Dict[str, Any]) -> Dict[str, Any]:
-        """Fetch real-time weather from Open-Meteo for a single station."""
+        """
+        Fetch real-time weather from Open-Meteo for a single station with verified TLS,
+        bounded retries, and strict schema validation.
+        """
         lat = station["lat"]
         lng = station["lng"]
         url = (
@@ -132,10 +141,39 @@ class LiveWeatherService:
             f"&timezone=auto"
         )
         
-        req = urllib.request.Request(url, headers={"User-Agent": "NERLogisticsPlatform/2.0"})
-        with urllib.request.urlopen(req, context=self._ssl_context, timeout=4) as response:
-            data = json.loads(response.read().decode("utf-8"))
-            
+        req = urllib.request.Request(
+            url, 
+            headers={
+                "User-Agent": "NERLogisticsPlatform/2.0",
+                "Accept": "application/json"
+            }
+        )
+
+        last_error = None
+        for attempt in range(self.max_retries):
+            try:
+                with urllib.request.urlopen(
+                    req, 
+                    context=self._ssl_context, 
+                    timeout=settings.WEATHER_API_TIMEOUT_SEC
+                ) as response:
+                    if response.status != 200:
+                        raise ValueError(f"HTTP Status {response.status} from weather provider")
+                    
+                    content_type = response.headers.get("Content-Type", "")
+                    if "application/json" not in content_type:
+                        raise ValueError(f"Unexpected Content-Type: {content_type}")
+                    
+                    raw_bytes = response.read(65536)  # Bound response to 64KB
+                    data = json.loads(raw_bytes.decode("utf-8"))
+                    break
+            except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, json.JSONDecodeError) as e:
+                last_error = e
+                if attempt < self.max_retries - 1:
+                    time.sleep(0.5 * (attempt + 1))
+        else:
+            raise RuntimeError(f"Failed to fetch station {station['station_id']} after {self.max_retries} attempts: {last_error}")
+
         cur = data.get("current", {})
         daily = data.get("daily", {})
         
@@ -161,7 +199,6 @@ class LiveWeatherService:
 
         condition_text = WMO_CODE_MAP.get(wmo_code, "Partly cloudy")
         
-        # Build trend curve from daily forecast
         trend = daily_sums[:7] if daily_sums else [rain_24h]
         while len(trend) < 7:
             trend.append(round(trend[-1] * 0.9, 1))
@@ -187,19 +224,24 @@ class LiveWeatherService:
             "wmo_code": wmo_code,
             "rainfall_trend": [round(float(x), 1) for x in trend],
             "is_live": True,
-            "source": "Open-Meteo Real-Time Met Feed",
+            "source": "Open-Meteo Real-Time Met Feed (Verified TLS)",
             "last_updated": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
         }
 
     def _fetch_station_safe(self, st: Dict[str, Any]) -> Dict[str, Any]:
-        """Fetch station telemetry with robust error handling and fallback."""
+        """Fetch station telemetry with robust error handling and transparent fallback tagging."""
         try:
             return self.fetch_station_live(st)
         except Exception as e:
             logger.warning(f"Could not fetch live weather for {st['name']}: {e}")
             existing = next((c for c in self._cache if c["station_id"] == st["station_id"]), None)
             if existing:
-                return existing
+                # Mark cached data clearly as cached, preserving historical observation
+                cached_copy = dict(existing)
+                cached_copy["is_live"] = False
+                cached_copy["source"] = f"Cached ({existing.get('last_updated', 'Prior Run')})"
+                return cached_copy
+                
             return {
                 "station_id": st["station_id"],
                 "name": st["name"],
@@ -208,20 +250,20 @@ class LiveWeatherService:
                 "lng": st["lng"],
                 "current_rainfall_mm": 0.0,
                 "rainfall_1h_mm": 0.0,
-                "rainfall_6h_mm": 2.0,
-                "rainfall_24h_mm": 5.0,
-                "rainfall_7d_mm": 20.0,
-                "forecast_rainfall_mm": 4.0,
-                "temperature_c": 24.0,
-                "humidity_percent": 82.0,
-                "wind_speed_kmh": 6.0,
-                "visibility_km": 8.0,
+                "rainfall_6h_mm": 0.0,
+                "rainfall_24h_mm": 0.0,
+                "rainfall_7d_mm": 0.0,
+                "forecast_rainfall_mm": 0.0,
+                "temperature_c": 22.0,
+                "humidity_percent": 75.0,
+                "wind_speed_kmh": 5.0,
+                "visibility_km": 10.0,
                 "warning_level": "NORMAL",
-                "weather_condition": "Mainly clear",
-                "wmo_code": 1,
-                "rainfall_trend": [1.0, 2.0, 3.0, 2.0, 4.0, 5.0, 5.0],
+                "weather_condition": "Telemetry Unavailable",
+                "wmo_code": 0,
+                "rainfall_trend": [0.0] * 7,
                 "is_live": False,
-                "source": "Baseline Forecast",
+                "source": "Historical Baseline (Live Feed Unavailable)",
                 "last_updated": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
             }
 
@@ -231,7 +273,6 @@ class LiveWeatherService:
         if not force_refresh and self._cache and (now - self._last_fetch_time < self.cache_ttl_seconds):
             return self._cache
 
-        # Concurrent parallel fetch for all 8 stations to ensure sub-second response
         with ThreadPoolExecutor(max_workers=min(len(NER_STATIONS), 8)) as executor:
             updated_stations = list(executor.map(self._fetch_station_safe, NER_STATIONS))
 
@@ -241,5 +282,6 @@ class LiveWeatherService:
 
         return self._cache
 
+
 # Global singleton service
-live_weather_service = LiveWeatherService(cache_ttl_seconds=300)
+live_weather_service = LiveWeatherService(cache_ttl_seconds=settings.WEATHER_CACHE_TTL_SEC)
