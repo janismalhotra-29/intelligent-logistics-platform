@@ -3,7 +3,7 @@ SQLAlchemy ORM Entities representing the core NER Smart Logistics domain schema.
 Matches the tables in database/migrations/001_init_postgis.sql with JSON and cross-platform compatibility.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import (
     Column, String, Integer, Float, Boolean, Text, DateTime, JSON, ForeignKey
 )
@@ -21,7 +21,7 @@ class HubModel(Base):
     capacity_tons = Column(Float, default=500.0)
     lat = Column(Float, nullable=False)
     lng = Column(Float, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 
 class RoadModel(Base):
@@ -48,7 +48,7 @@ class RoadModel(Base):
     bridge_condition_score = Column(Integer, default=4)
     coordinates = Column(JSON, default=list)
     alternative_route_ids = Column(JSON, default=list)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
 
 class VehicleModel(Base):
@@ -73,7 +73,7 @@ class VehicleModel(Base):
     is_diverted = Column(Boolean, default=False)
     current_route_risk = Column(String(30), default="LOW")
     predicted_delay = Column(String(30), default="+0 min")
-    last_ping = Column(DateTime, default=datetime.utcnow)
+    last_ping = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 
 class ShipmentModel(Base):
@@ -89,7 +89,7 @@ class ShipmentModel(Base):
     vehicle_id = Column(String(50), nullable=True)
     status = Column(String(40), default="SCHEDULED", index=True)  # SCHEDULED, IN_TRANSIT, DIVERTED, DELIVERED, DELAYED
     risk_impact = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 
 class IncidentModel(Base):
@@ -111,7 +111,7 @@ class IncidentModel(Base):
     cv_classification = Column(JSON, nullable=True)
     affected_vehicles_count = Column(Integer, default=0)
     affected_shipments_count = Column(Integer, default=0)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 
 class FieldReportModel(Base):
@@ -131,7 +131,7 @@ class FieldReportModel(Base):
     timestamp_captured = Column(String(60), nullable=True)
     photo_url = Column(String(500), nullable=True)
     cv_classification = Column(JSON, nullable=True)
-    synced_at = Column(DateTime, default=datetime.utcnow)
+    synced_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 
 class AlertModel(Base):
@@ -154,4 +154,4 @@ class AlertModel(Base):
     alternative_route_id = Column(String(50), nullable=True)
     alternative_route_name = Column(String(255), nullable=True)
     status = Column(String(30), default="ACTIVE")
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))

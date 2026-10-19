@@ -90,3 +90,86 @@ def test_api_list_alerts_and_resolve(client):
     res_resolve = client.post(f"/api/alerts/{first_id}/resolve")
     assert res_resolve.status_code == 200
     assert res_resolve.json()["alert"]["status"] == "RESOLVED"
+
+
+def test_api_weather_endpoints(client):
+    res = client.get("/api/weather")
+    assert res.status_code == 200
+    stations = res.json()
+    assert len(stations) >= 8
+    assert any(s["state"] == "Assam" for s in stations)
+    assert any(s["state"] == "Meghalaya" for s in stations)
+
+    # Filter by state
+    res_sikkim = client.get("/api/weather?state=Sikkim")
+    assert res_sikkim.status_code == 200
+    assert all(s["state"] == "Sikkim" for s in res_sikkim.json())
+
+
+def test_api_route_optimization(client):
+    payload = {
+        "origin": "Gangtok",
+        "destination": "Mangan",
+        "cargo_category": "Medicine",
+        "cargo_priority": 100
+    }
+    res = client.post("/api/routes/optimize", json=payload)
+    assert res.status_code == 200
+    data = res.json()
+    assert data["route_found"] is True
+    assert "recommended_route" in data
+    assert "all_routes" in data
+
+
+def test_api_ai_prediction_endpoints(client):
+    # Risk prediction direct endpoint
+    risk_payload = {
+        "rainfall_24h": 85.0,
+        "slope": 28.0,
+        "elevation": 1400.0,
+        "road_condition_score": 3,
+        "historical_landslides": 2
+    }
+    res_risk = client.post("/api/risk/predict", json=risk_payload)
+    assert res_risk.status_code == 200
+    risk_data = res_risk.json()
+    assert "risk_score" in risk_data
+    assert "overall_level" in risk_data
+    assert "contributors" in risk_data
+    assert risk_data["is_synthetic_prototype"] is True
+
+    # ETA prediction direct endpoint
+    eta_payload = {
+        "distance_km": 80.0,
+        "base_speed_kmh": 35.0,
+        "road_condition_score": 3,
+        "route_risk_score": 40
+    }
+    res_eta = client.post("/api/eta/predict", json=eta_payload)
+    assert res_eta.status_code == 200
+    eta_data = res_eta.json()
+    assert "predicted_delay_minutes" in eta_data
+    assert "estimated_variation_range" in eta_data
+    assert eta_data["is_synthetic_prototype"] is True
+
+
+def test_live_weather_service_tls_context():
+    from backend.app.services.live_weather_service import LiveWeatherService
+    svc = LiveWeatherService()
+    # Verify standard TLS certificate validation is enabled
+    assert svc._ssl_context.verify_mode != 0  # ssl.CERT_REQUIRED
+    assert svc._ssl_context.check_hostname is True
+
+    # Test safe fallback tagging when station is unreachable
+    fake_station = {
+        "station_id": "W-TEST-OFFLINE",
+        "name": "Offline Mount Station",
+        "state": "Sikkim",
+        "lat": 999.0,  # Invalid latitude will trigger error safely
+        "lng": 999.0,
+        "elevation_m": 2000
+    }
+    fallback = svc._fetch_station_safe(fake_station)
+    assert fallback["is_live"] is False
+    assert "Unavailable" in fallback["source"]
+

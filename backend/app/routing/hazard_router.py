@@ -20,17 +20,17 @@ def calculate_segment_penalty(road: dict, cargo_priority: int = 100, allow_block
     if status == "BLOCKED" and not allow_blocked:
         return float("inf")
     
-    distance = max(1.0, float(road.get("distance_km", 50.0)))
-    base_speed = max(10.0, float(road.get("base_speed_kmh", 35.0)))
+    distance = max(1.0, float(road.get("distance_km") if road.get("distance_km") is not None else 50.0))
+    base_speed = max(10.0, float(road.get("base_speed_kmh") if road.get("base_speed_kmh") is not None else 35.0))
     travel_time_hours = distance / base_speed
     
-    # Extract terrain & weather hazard factors
-    slope = float(road.get("slope_deg", 15.0))
-    elevation = float(road.get("elevation_m", 1000.0))
-    cond_score = int(road.get("road_condition_score", 3))
-    traffic_str = road.get("traffic_level", "Moderate")
-    hist_slides = int(road.get("historical_landslides", 0))
-    hist_floods = int(road.get("historical_floods", 0))
+    # Extract terrain & weather hazard factors safely (handling missing or None values)
+    slope = float(road.get("slope_deg") if road.get("slope_deg") is not None else 15.0)
+    elevation = float(road.get("elevation_m") if road.get("elevation_m") is not None else 1000.0)
+    cond_score = int(road.get("road_condition_score") if road.get("road_condition_score") is not None else 3)
+    traffic_str = road.get("traffic_level") or "Moderate"
+    hist_slides = int(road.get("historical_landslides") if road.get("historical_landslides") is not None else 0)
+    hist_floods = int(road.get("historical_floods") if road.get("historical_floods") is not None else 0)
     
     # Calculate hazard scores (0 to 100)
     landslide_risk = min(100.0, (slope / 45.0) * 40.0 + (hist_slides * 8.0))

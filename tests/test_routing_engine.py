@@ -5,6 +5,7 @@ disconnected graph handling, and cargo priority weighting.
 """
 
 import pytest
+import numpy as np
 from backend.app.routing.hazard_router import optimize_route, calculate_segment_penalty
 from backend.app.services.data_store import DataStore
 
@@ -88,3 +89,23 @@ def test_blocked_segment_penalty_infinite():
     }
     cost = calculate_segment_penalty(blocked_segment, allow_blocked=False)
     assert cost == float("inf")
+
+
+def test_segment_penalty_missing_or_none_attributes():
+    # Segment with None and missing values should compute safely without TypeError
+    dirty_segment = {
+        "id": "TEST-DIRTY-1",
+        "distance_km": None,
+        "base_speed_kmh": None,
+        "slope_deg": None,
+        "elevation_m": None,
+        "road_condition_score": None,
+        "traffic_level": None,
+        "historical_landslides": None,
+        "historical_floods": None,
+        "status": "ACCESSIBLE"
+    }
+    cost = calculate_segment_penalty(dirty_segment, cargo_priority=80)
+    assert cost > 0
+    assert not np.isnan(cost) and not np.isinf(cost)
+

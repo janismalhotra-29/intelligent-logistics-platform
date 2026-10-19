@@ -7,7 +7,7 @@ and survive application restarts.
 import pytest
 from backend.app.services.data_store import DataStore
 from backend.app.database import SessionLocal
-from backend.app.models.entities import RoadModel, VehicleModel, ShipmentModel, IncidentModel, FieldReportModel
+from backend.app.models.entities import HubModel, RoadModel, VehicleModel, ShipmentModel, IncidentModel, FieldReportModel
 
 
 @pytest.fixture
@@ -87,3 +87,41 @@ def test_vehicle_diversion_persistence(store):
     assert db_v.is_diverted is True
     assert db_v.status == "DIVERTED"
     session.close()
+
+
+def test_postgis_migration_script_integrity():
+    import pathlib
+    migration_path = pathlib.Path("database/migrations/001_init_postgis.sql")
+    assert migration_path.exists(), "001_init_postgis.sql must exist"
+    
+    content = migration_path.read_text(encoding="utf-8")
+    assert "CREATE EXTENSION IF NOT EXISTS postgis;" in content
+    assert "CREATE TABLE IF NOT EXISTS states" in content
+    assert "CREATE TABLE IF NOT EXISTS hubs" in content
+    assert "CREATE TABLE IF NOT EXISTS roads" in content
+    assert "CREATE TABLE IF NOT EXISTS vehicles" in content
+    assert "CREATE TABLE IF NOT EXISTS shipments" in content
+    assert "CREATE TABLE IF NOT EXISTS incidents" in content
+    assert "CREATE TABLE IF NOT EXISTS field_reports" in content
+    assert "CREATE TABLE IF NOT EXISTS alerts" in content
+    assert "USING GIST(geom)" in content
+
+
+def test_database_transaction_rollback_on_error():
+    from sqlalchemy.exc import IntegrityError
+    session = SessionLocal()
+    
+    # Try inserting an invalid hub without required fields
+    try:
+        invalid_hub = HubModel(id=None, name=None, state=None, hub_type=None, lat=None, lng=None) # type: ignore
+        session.add(invalid_hub)
+        session.flush()
+        assert False, "Should have raised exception on invalid insert"
+    except Exception:
+        session.rollback()
+    
+    # Session must remain healthy and usable after rollback
+    active_hubs = session.query(HubModel).count()
+    assert active_hubs >= 10
+    session.close()
+
