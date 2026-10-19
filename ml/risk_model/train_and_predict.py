@@ -1,6 +1,8 @@
 """
 ML Road Risk and Disruption Prediction Model for North Eastern Region (NER).
-Supports Random Forest / Gradient Boosting / XGBoost.
+PROTOTYPE NOTICE: Trained on synthetic mountain terrain topography and meteorological simulation.
+Designed strictly as decision-support advisory, not an authoritative emergency dispatch directive.
+
 Predicts road disruption probability (0-100%), sub-risks (flood, landslide, heavy rain, traffic),
 and provides Explainable AI feature contribution breakdowns.
 """
@@ -9,12 +11,17 @@ import os
 import joblib
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.dummy import DummyClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import roc_auc_score, accuracy_score
+from sklearn.metrics import (
+    roc_auc_score, accuracy_score, precision_score, recall_score,
+    f1_score, confusion_matrix
+)
 
 MODEL_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_FILE = os.path.join(MODEL_DIR, "road_risk_model.joblib")
+
 FEATURE_NAMES = [
     "rainfall_1h",
     "rainfall_6h",
@@ -26,23 +33,27 @@ FEATURE_NAMES = [
     "wind_speed",
     "elevation",
     "slope",
-    "road_type_idx",       # 0: National Highway, 1: State Highway, 2: Border/Major Road, 3: Rural Road
-    "road_surface_idx",    # 0: Asphalt/Paved, 1: Bituminous Concrete, 2: Gravel/Unpaved
-    "road_condition_score",# 1 (Critical) to 5 (Excellent)
-    "traffic_level_idx",   # 0: Low, 1: Moderate, 2: High, 3: Heavy
+    "road_type_idx",        # 0: National Highway, 1: State Highway, 2: Border/Major Road, 3: Rural Road
+    "road_surface_idx",     # 0: Asphalt/Paved, 1: Bituminous Concrete, 2: Gravel/Unpaved
+    "road_condition_score", # 1 (Critical) to 5 (Excellent)
+    "traffic_level_idx",    # 0: Low, 1: Moderate, 2: High, 3: Heavy
     "river_proximity_m",
     "historical_landslides",
     "historical_floods",
     "historical_incidents",
-    "bridge_condition_score", # 1 to 5
+    "bridge_condition_score",  # 1 to 5
     "recent_field_reports_count",
     "distance_to_hazard_m",
     "incident_count_30d",
     "incident_count_90d"
 ]
 
+
 def generate_synthetic_ner_data(n_samples: int = 5000, random_seed: int = 42):
-    """Generate realistic training data mirroring NER's mountain, flood-prone & landslide topography."""
+    """
+    Generate synthetic mountain terrain dataset mirroring NER's slope, rainfall, and hazard characteristics.
+    Explicitly documented as synthetic prototype data.
+    """
     np.random.seed(random_seed)
     
     elevation = np.random.uniform(80, 3600, n_samples)
@@ -133,17 +144,24 @@ def generate_synthetic_ner_data(n_samples: int = 5000, random_seed: int = 42):
     })
     return df
 
+
 def train_risk_model():
-    """Train and serialize the Random Forest / Gradient Boosting risk model."""
+    """Train, evaluate against baseline, and serialize the risk classifier."""
     print("Generating synthetic mountain terrain dataset for North Eastern Region...")
-    df = generate_synthetic_ner_data(n_samples=5000)
+    df = generate_synthetic_ner_data(n_samples=5000, random_seed=42)
     
     X = df[FEATURE_NAMES]
     y = df["target_disrupted"]
     
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
     
-    print("Training Random Forest & Gradient Boosting Classifier...")
+    # 1. Baseline Model (Dummy most-frequent classifier)
+    baseline = DummyClassifier(strategy="most_frequent")
+    baseline.fit(X_train, y_train)
+    baseline_acc = accuracy_score(y_test, baseline.predict(X_test))
+    
+    # 2. Random Forest Model
+    print("Training Random Forest Classifier on synthetic terrain distribution...")
     model = RandomForestClassifier(
         n_estimators=150,
         max_depth=12,
@@ -155,22 +173,47 @@ def train_risk_model():
     
     preds_proba = model.predict_proba(X_test)[:, 1]
     preds = model.predict(X_test)
+    
     auc = roc_auc_score(y_test, preds_proba)
     acc = accuracy_score(y_test, preds)
-    print(f"Model Training Complete! Test AUC: {auc:.4f}, Accuracy: {acc:.4f}")
+    prec = precision_score(y_test, preds, zero_division=0)
+    rec = recall_score(y_test, preds, zero_division=0)
+    f1 = f1_score(y_test, preds, zero_division=0)
+    cm = confusion_matrix(y_test, preds).tolist()
+    
+    print(f"--- Model Evaluation (Synthetic Test Set, N={len(y_test)}) ---")
+    print(f"Baseline (Most Frequent) Accuracy: {baseline_acc:.4f}")
+    print(f"Model Test Accuracy:  {acc:.4f}")
+    print(f"Model Test Precision: {prec:.4f}")
+    print(f"Model Test Recall:    {rec:.4f} (Crucial for minimizing missed hazards)")
+    print(f"Model Test F1 Score:  {f1:.4f}")
+    print(f"Model Test ROC-AUC:   {auc:.4f}")
+    print(f"Confusion Matrix [TN, FP], [FN, TP]: {cm}")
     
     payload = {
         "model": model,
         "model_type": "RandomForestClassifier",
+        "dataset_type": "Synthetic Topography Simulation (Prototype)",
+        "model_version": "2.0.0-prototype",
         "feature_names": FEATURE_NAMES,
         "feature_importances": dict(zip(FEATURE_NAMES, model.feature_importances_.tolist())),
-        "metrics": {"auc": float(auc), "accuracy": float(acc)}
+        "metrics": {
+            "baseline_accuracy": float(baseline_acc),
+            "accuracy": float(acc),
+            "precision": float(prec),
+            "recall": float(rec),
+            "f1_score": float(f1),
+            "auc": float(auc),
+            "confusion_matrix": cm
+        }
     }
     joblib.dump(payload, MODEL_FILE)
-    print(f"Saved model to {MODEL_FILE}")
+    print(f"Saved model payload to {MODEL_FILE}")
     return payload
 
+
 _LOADED_RISK_MODEL = None
+
 
 def get_risk_model():
     """Load or lazily initialize the trained model."""
@@ -182,21 +225,44 @@ def get_risk_model():
             _LOADED_RISK_MODEL = joblib.load(MODEL_FILE)
     return _LOADED_RISK_MODEL
 
+
+def validate_risk_inputs(features: dict) -> list:
+    """Validate numeric feature ranges and handle non-finite or missing features."""
+    row = []
+    for k in FEATURE_NAMES:
+        val = features.get(k, 0.0)
+        try:
+            val_f = float(val)
+            if not np.isfinite(val_f):
+                val_f = 0.0
+        except (ValueError, TypeError):
+            val_f = 0.0
+        # Physical bounds
+        if k in ("rainfall_1h", "rainfall_6h", "rainfall_24h", "rainfall_7d", "forecast_rainfall"):
+            val_f = max(0.0, min(1000.0, val_f))
+        elif k in ("slope", "elevation"):
+            val_f = max(0.0, min(8848.0, val_f))
+        elif k in ("historical_landslides", "historical_floods", "historical_incidents"):
+            val_f = max(0.0, min(100.0, val_f))
+        row.append(val_f)
+    return row
+
+
 def predict_road_risk(features: dict) -> dict:
     """
     Predict road disruption risk and sub-risks from road and weather features.
-    Computes Explainable AI contributions.
+    Computes Explainable AI contributions and transparent provenance tags.
     """
     payload = get_risk_model()
     model = payload["model"]
     
-    row = [float(features.get(k, 0.0)) for k in FEATURE_NAMES]
+    row = validate_risk_inputs(features)
     X_sample = pd.DataFrame([row], columns=FEATURE_NAMES)
     
     prob = float(model.predict_proba(X_sample)[0, 1])
     risk_score = int(round(prob * 100))
     
-    # Sub-risks
+    # Sub-risks calculation
     rainfall_24h = float(features.get("rainfall_24h", 0))
     forecast_rain = float(features.get("forecast_rainfall", 0))
     slope = float(features.get("slope", 0))
@@ -231,7 +297,7 @@ def predict_road_risk(features: dict) -> dict:
     # Traffic Risk
     traffic_risk = int(round(np.clip((traffic_idx / 3.0) * 70 + (risk_score * 0.3), 5, 95)))
     
-    # Level label
+    # Categorical severity level
     if risk_score < 30:
         overall_level = "NORMAL"
     elif risk_score < 60:
@@ -243,7 +309,6 @@ def predict_road_risk(features: dict) -> dict:
         
     # Explainable AI: Feature contributions
     contributors = []
-    
     if rainfall_24h > 35:
         contrib = min(35, int(round((rainfall_24h / 150.0) * 29)))
         contributors.append({"factor": "Heavy rainfall (24h)", "points": f"+{contrib}", "value": contrib})
@@ -273,7 +338,7 @@ def predict_road_risk(features: dict) -> dict:
     if not contributors:
         contributors.append({"factor": "Base regional topography", "points": "+5", "value": 5})
     
-    # Accessibility window prediction
+    # Disruption window projection
     if risk_score >= 88 or features.get("is_currently_blocked", False):
         disruption_window = "Now"
         disruption_window_desc = "Immediate blockage or critical failure active"
@@ -303,37 +368,11 @@ def predict_road_risk(features: dict) -> dict:
         "disruption_window": disruption_window,
         "disruption_window_desc": disruption_window_desc,
         "contributors": contributors[:6],
-        "model_confidence": int(round(90 + (abs(prob - 0.5) * 18)))
+        "model_version": "2.0.0-prototype",
+        "is_synthetic_prototype": True,
+        "decision_support_disclaimer": "Advisory decision support only. Not an authoritative emergency dispatch guarantee."
     }
+
 
 if __name__ == "__main__":
     train_risk_model()
-    test_sample = {
-        "rainfall_1h": 22.5,
-        "rainfall_6h": 68.0,
-        "rainfall_24h": 142.0,
-        "rainfall_7d": 410.0,
-        "forecast_rainfall": 85.0,
-        "temperature": 18.0,
-        "humidity": 94.0,
-        "wind_speed": 18.0,
-        "elevation": 1850.0,
-        "slope": 34.0,
-        "road_type_idx": 0,
-        "road_surface_idx": 0,
-        "road_condition_score": 2,
-        "traffic_level_idx": 2,
-        "river_proximity_m": 80.0,
-        "historical_landslides": 7,
-        "historical_floods": 1,
-        "historical_incidents": 9,
-        "bridge_condition_score": 3,
-        "recent_field_reports_count": 1,
-        "distance_to_hazard_m": 250.0,
-        "incident_count_30d": 3,
-        "incident_count_90d": 7
-    }
-    result = predict_road_risk(test_sample)
-    print("\nTest Prediction Output:")
-    import pprint
-    pprint.pprint(result)
