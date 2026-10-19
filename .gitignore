@@ -64,6 +64,9 @@ lerna-debug.log*
 .env.*.local
 *.pem
 *.key
+*.db
+*.sqlite
+*.sqlite3
 
 # Operating System Files
 .DS_Store

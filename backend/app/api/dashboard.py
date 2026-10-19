@@ -1,13 +1,19 @@
 """
 Dashboard API router for the NER Logistics Intelligence Platform.
-Computes top KPI cards, situation metrics, state vulnerability rankings,
-and regional overview analytics.
+Computes live KPI cards, situation metrics, state vulnerability rankings,
+and regional overview analytics dynamically from active road network data.
 """
 
 from fastapi import APIRouter
 from backend.app.services.data_store import store
 
 router = APIRouter(prefix="/api/dashboard", tags=["Dashboard"])
+
+NER_STATES = [
+    "Assam", "Arunachal Pradesh", "Manipur", "Meghalaya",
+    "Mizoram", "Nagaland", "Sikkim", "Tripura"
+]
+
 
 @router.get("")
 def get_dashboard_summary():
@@ -17,15 +23,6 @@ def get_dashboard_summary():
     alerts = store.alerts
     incidents = store.incidents
     
-    # KPIs specified in prompt:
-    # - Total Roads Monitored
-    # - High Risk Roads
-    # - Blocked Roads
-    # - Vehicles Active
-    # - Critical Shipments
-    # - Delayed Shipments
-    # - Active Alerts
-    # - Incidents Reported
     total_roads = len(roads)
     blocked_roads = len([r for r in roads if r.get("status") == "BLOCKED"])
     high_risk_roads = len([r for r in roads if r.get("status") in ["WATCH", "RESTRICTED", "BLOCKED"]])
@@ -35,17 +32,18 @@ def get_dashboard_summary():
     active_alerts = len([a for a in alerts if a.get("status") in ["ACTIVE", "ACTION_REQUIRED"]])
     incidents_reported = len(incidents)
     
-    # State-wise road vulnerability count
-    state_breakdown = {
-        "Sikkim": {"total": 5, "high_risk": 3, "blocked": 1 if blocked_roads > 0 else 0},
-        "Arunachal Pradesh": {"total": 2, "high_risk": 1, "blocked": 0},
-        "Meghalaya": {"total": 3, "high_risk": 2, "blocked": 0},
-        "Assam": {"total": 2, "high_risk": 0, "blocked": 0},
-        "Nagaland": {"total": 1, "high_risk": 1, "blocked": 0},
-        "Manipur": {"total": 2, "high_risk": 1, "blocked": 0},
-        "Mizoram": {"total": 1, "high_risk": 1, "blocked": 0},
-        "Tripura": {"total": 2, "high_risk": 0, "blocked": 0}
-    }
+    # Compute state-wise road vulnerability count dynamically from active roads
+    state_breakdown = {}
+    for st in NER_STATES:
+        state_roads = [r for r in roads if r.get("state", "").lower() == st.lower()]
+        st_total = len(state_roads)
+        st_high_risk = len([r for r in state_roads if r.get("status") in ["WATCH", "RESTRICTED", "BLOCKED"]])
+        st_blocked = len([r for r in state_roads if r.get("status") == "BLOCKED"])
+        state_breakdown[st] = {
+            "total": st_total,
+            "high_risk": st_high_risk,
+            "blocked": st_blocked
+        }
     
     # Recent critical alerts feed
     top_alerts = alerts[:5]

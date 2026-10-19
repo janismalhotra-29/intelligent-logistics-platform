@@ -31,7 +31,11 @@ def generate_alert_for_road(road: dict, risk_eval: dict, vehicles: list, shipmen
         icon = "👁️"
         
     # Identify affected vehicles
-    affected_vehs = [v for v in vehicles if v.get("assigned_road_id") == road_id or (v.get("origin") == road.get("from_hub") and v.get("destination") == road.get("to_hub"))]
+    affected_vehs = [
+        v for v in vehicles 
+        if v.get("assigned_road_id") == road_id or 
+        (v.get("origin") == road.get("from_hub") and v.get("destination") == road.get("to_hub"))
+    ]
     affected_veh_count = len(affected_vehs)
     
     # Identify affected critical shipments (Medicine, Emergency, Food)
@@ -41,14 +45,14 @@ def generate_alert_for_road(road: dict, risk_eval: dict, vehicles: list, shipmen
     
     # Generate action text
     if alert_level == "CRITICAL":
-        rec_action = f"IMMEDIATE ACTION REQUIRED: Divert essential supply vehicles through alternative bypass corridor. Halt heavy convoys at staging checkpoint."
+        rec_action = "IMMEDIATE ACTION REQUIRED: Divert essential supply vehicles through alternative bypass corridor. Halt heavy convoys at staging checkpoint."
         pred_text = f"Immediate or imminent disruption ({disruption_window}). Passage highly compromised."
     elif alert_level == "WARNING":
         rec_action = f"STAGE CONVOYS: Enforce 20-minute departure spacing. Pre-alert secondary route operators for possible diversion within {disruption_window}."
         pred_text = f"Predicted potential disruption within {disruption_window} based on weather escalation."
     else:
-        rec_action = f"CONTINUOUS SURVEILLANCE: Deploy field officer drone patrol. Monitor slope telemetry hourly."
-        pred_text = f"Advisory watch. Road accessible but deteriorating under steady rainfall."
+        rec_action = "CONTINUOUS SURVEILLANCE: Deploy field officer drone patrol. Monitor slope telemetry hourly."
+        pred_text = "Advisory watch. Road accessible but deteriorating under steady rainfall."
         
     # Identify alternative route recommendation
     alt_route_id = None
@@ -77,8 +81,8 @@ def generate_alert_for_road(road: dict, risk_eval: dict, vehicles: list, shipmen
         "reason": reason,
         "prediction": pred_text,
         "disruption_window": disruption_window,
-        "affected_vehicles": max(affected_veh_count, 6 if road_id == "R-1024" and risk_score >= 80 else affected_veh_count),
-        "critical_shipments": max(critical_shipment_count, 2 if road_id == "R-1024" and risk_score >= 80 else critical_shipment_count),
+        "affected_vehicles": affected_veh_count,
+        "critical_shipments": critical_shipment_count,
         "recommended_action": rec_action,
         "alternative_route_id": alt_route_id,
         "alternative_route_name": alt_route_name,
