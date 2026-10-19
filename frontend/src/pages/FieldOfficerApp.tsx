@@ -8,10 +8,11 @@ import {
   Upload, 
   CheckCircle2, 
   AlertTriangle, 
-  RefreshCw,
-  Sparkles,
-  Layers,
-  FileCheck
+  RefreshCw, 
+  Sparkles, 
+  Layers, 
+  FileCheck,
+  ShieldCheck
 } from 'lucide-react';
 import { 
   getOfflineQueue, 
@@ -168,17 +169,17 @@ export const FieldOfficerApp: React.FC = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-4">
+    <div className="max-w-2xl mx-auto space-y-3.5 font-sans">
       {/* Mobile Device Frame Header */}
-      <div className="bg-command-900 border border-command-border rounded-2xl p-4 shadow-2xl space-y-3">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+      <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs space-y-3">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-cyan-600/30 border border-cyan-500/50 flex items-center justify-center">
-              <Smartphone className="w-4 h-4 text-cyan-400" />
+            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center font-bold">
+              <Smartphone className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white">NER Field Officer Mobile Experience</h2>
-              <span className="text-[10px] text-slate-400 font-mono">Offline-First Spatial Incident Uplink</span>
+              <h2 className="text-sm font-bold text-slate-900">NER Field Officer Ground Uplink</h2>
+              <span className="text-[10px] text-slate-500 font-mono">Offline-First Spatial Incident Reporting</span>
             </div>
           </div>
 
@@ -187,18 +188,18 @@ export const FieldOfficerApp: React.FC = () => {
             onClick={handleToggleOffline}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               isOffline
-                ? 'bg-rose-500/20 text-rose-300 border border-rose-500/50'
-                : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/50'
+                ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
             }`}
           >
             {isOffline ? (
               <>
-                <WifiOff className="w-3.5 h-3.5" />
+                <WifiOff className="w-3.5 h-3.5 text-amber-700" />
                 <span>Simulated Offline Mode</span>
               </>
             ) : (
               <>
-                <Wifi className="w-3.5 h-3.5" />
+                <Wifi className="w-3.5 h-3.5 text-emerald-700" />
                 <span>Online Connected</span>
               </>
             )}
@@ -206,18 +207,18 @@ export const FieldOfficerApp: React.FC = () => {
         </div>
 
         {/* Pending Sync Banner */}
-        <div className="flex items-center justify-between bg-command-950/80 p-3 rounded-xl border border-slate-800 text-xs">
+        <div className="flex items-center justify-between bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs">
           <div className="flex items-center gap-2">
-            <span className={`w-2.5 h-2.5 rounded-full ${pendingQueue.length > 0 ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`}></span>
-            <span className="text-slate-300">
-              Pending Sync Queue: <strong className="text-white font-mono">{pendingQueue.length}</strong> reports
+            <span className={`w-2.5 h-2.5 rounded-full ${pendingQueue.length > 0 ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`}></span>
+            <span className="text-slate-700 font-medium">
+              Pending Offline Queue: <strong className="text-slate-900 font-mono">{pendingQueue.length}</strong> reports
             </span>
           </div>
           {!isOffline && pendingQueue.length > 0 && (
             <button
               onClick={triggerSync}
               disabled={syncing}
-              className="px-2.5 py-1 rounded bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-[11px] transition-colors"
+              className="px-2.5 py-1 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-semibold text-[11px] transition-colors cursor-pointer"
             >
               {syncing ? 'Syncing...' : 'Sync Now'}
             </button>
@@ -225,24 +226,24 @@ export const FieldOfficerApp: React.FC = () => {
         </div>
 
         {syncMessage && (
-          <div className="p-2.5 rounded-lg bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs text-center font-medium animate-in fade-in">
+          <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs text-center font-medium">
             {syncMessage}
           </div>
         )}
       </div>
 
       {/* Incident Reporting Form Card */}
-      <div className="glass-panel p-5 rounded-2xl border border-command-border space-y-4 shadow-xl">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-cyan-400 font-mono">
-            New Ground Incident Report
+      <div className="bg-white p-5 rounded-xl border border-slate-200 space-y-4 shadow-xs">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-800 font-mono">
+            New Ground Incident Verification Report
           </span>
-          <span className="text-[10px] text-slate-400 font-mono">ID: AUTO-LOC-{Date.now().toString().slice(-4)}</span>
+          <span className="text-[10px] text-slate-500 font-mono">ID: AUTO-LOC-{Date.now().toString().slice(-4)}</span>
         </div>
 
         {submitSuccess && (
-          <div className="p-3 rounded-xl bg-cyan-950/80 border border-cyan-500/50 text-cyan-200 text-xs flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
+          <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <span className="font-semibold">{submitSuccess}</span>
           </div>
         )}
@@ -250,17 +251,17 @@ export const FieldOfficerApp: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
           {/* Incident Type Radio / Pills */}
           <div>
-            <label className="text-[11px] font-bold text-slate-300 block mb-1.5">Select Incident Hazard Type:</label>
+            <label className="text-[11px] font-bold text-slate-700 block mb-1.5">Select Incident Hazard Type:</label>
             <div className="grid grid-cols-3 gap-2">
               {['Landslide', 'Flood', 'Road Damage', 'Bridge Damage', 'Traffic', 'Other'].map((t) => (
                 <button
                   key={t}
                   type="button"
                   onClick={() => setIncidentType(t)}
-                  className={`py-2 px-2.5 rounded-lg text-xs font-semibold border transition-all ${
+                  className={`py-2 px-2.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
                     incidentType === t
-                      ? 'bg-cyan-600 text-white border-cyan-400 shadow-sm'
-                      : 'bg-command-850 text-slate-300 border-slate-700/80 hover:bg-command-800'
+                      ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                      : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
                   }`}
                 >
                   {t}
@@ -270,18 +271,18 @@ export const FieldOfficerApp: React.FC = () => {
           </div>
 
           {/* Photo Upload & AI Classification Section */}
-          <div className="p-3.5 rounded-xl bg-command-950/80 border border-slate-800 space-y-2.5">
+          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                <Camera className="w-4 h-4 text-cyan-400" />
+              <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <Camera className="w-4 h-4 text-blue-600" />
                 <span>Hazard Photo & AI Vision Classifier</span>
               </span>
-              <span className="text-[10px] font-mono text-cyan-400">CV Model Active</span>
+              <span className="text-[10px] font-mono text-blue-700 font-bold">CV Model Ready</span>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-slate-800/80">
-              <label className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-cyan-700/40 hover:bg-cyan-700/60 border border-cyan-500/50 text-cyan-200 text-[11px] font-semibold cursor-pointer">
-                <Upload className="w-3.5 h-3.5 text-cyan-400" />
+            <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-slate-200">
+              <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-800 text-[11px] font-semibold cursor-pointer">
+                <Upload className="w-3.5 h-3.5 text-blue-600" />
                 <span>Upload Field Photo</span>
                 <input
                   type="file"
@@ -294,7 +295,7 @@ export const FieldOfficerApp: React.FC = () => {
                 type="button"
                 onClick={() => handleSimulatePhotoUpload('Landslide')}
                 disabled={cvAnalyzing}
-                className="px-2.5 py-1.5 rounded-lg bg-command-800 hover:bg-command-700 border border-slate-700 text-slate-200 text-[11px] font-medium"
+                className="px-2.5 py-1.5 rounded-lg bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-[11px] font-medium shadow-xs"
               >
                 📸 Demo Landslide
               </button>
@@ -302,7 +303,7 @@ export const FieldOfficerApp: React.FC = () => {
                 type="button"
                 onClick={() => handleSimulatePhotoUpload('Flood')}
                 disabled={cvAnalyzing}
-                className="px-2.5 py-1.5 rounded-lg bg-command-800 hover:bg-command-700 border border-slate-700 text-slate-200 text-[11px] font-medium"
+                className="px-2.5 py-1.5 rounded-lg bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-[11px] font-medium shadow-xs"
               >
                 📸 Demo Flood
               </button>
@@ -310,31 +311,31 @@ export const FieldOfficerApp: React.FC = () => {
                 type="button"
                 onClick={() => handleSimulatePhotoUpload('Bridge Damage')}
                 disabled={cvAnalyzing}
-                className="px-2.5 py-1.5 rounded-lg bg-command-800 hover:bg-command-700 border border-slate-700 text-slate-200 text-[11px] font-medium"
+                className="px-2.5 py-1.5 rounded-lg bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-[11px] font-medium shadow-xs"
               >
                 📸 Demo Bridge
               </button>
             </div>
 
             {cvAnalyzing && (
-              <div className="text-[11px] text-cyan-300 flex items-center gap-2">
-                <div className="w-3 h-3 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+              <div className="text-[11px] text-blue-700 flex items-center gap-2">
+                <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
                 <span>Running Edge/Color Feature Classifier...</span>
               </div>
             )}
 
             {cvResult && (
-              <div className="p-2.5 rounded-lg bg-command-900 border border-cyan-500/30 space-y-1">
+              <div className="p-2.5 rounded-lg bg-white border border-blue-200 space-y-1">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-white flex items-center gap-1">
-                    <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                  <span className="font-bold text-slate-900 flex items-center gap-1">
+                    <Sparkles className="w-3.5 h-3.5 text-blue-600" />
                     <span>AI Detection: {cvResult.predicted_type}</span>
                   </span>
-                  <span className="font-mono font-bold text-emerald-400">
+                  <span className="font-mono font-bold text-emerald-700">
                     {cvResult.confidence_percentage}% Confidence
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-300">
+                <p className="text-[11px] text-slate-600">
                   Recommended Action: {cvResult.recommended_action}
                 </p>
               </div>
@@ -344,14 +345,14 @@ export const FieldOfficerApp: React.FC = () => {
           {/* GPS Coordinates Auto Capture */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-[11px] font-bold text-slate-300 flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5 text-cyan-400" />
+              <label className="text-[11px] font-bold text-slate-700 flex items-center gap-1">
+                <MapPin className="w-3.5 h-3.5 text-blue-600" />
                 <span>Geospatial GPS Coordinate Lock</span>
               </label>
               <button
                 type="button"
                 onClick={handleAcquireGPS}
-                className="text-[10px] text-cyan-400 hover:underline font-semibold"
+                className="text-[10px] text-blue-600 hover:underline font-semibold"
               >
                 Acquire High-Accuracy GPS
               </button>
@@ -362,7 +363,7 @@ export const FieldOfficerApp: React.FC = () => {
                 step="0.000001"
                 value={latitude}
                 onChange={(e) => setLatitude(parseFloat(e.target.value))}
-                className="bg-command-800 text-white font-mono px-3 py-1.5 rounded-lg border border-slate-700"
+                className="bg-slate-50 text-slate-800 font-mono px-3 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:border-blue-500"
                 placeholder="Latitude"
               />
               <input
@@ -370,7 +371,7 @@ export const FieldOfficerApp: React.FC = () => {
                 step="0.000001"
                 value={longitude}
                 onChange={(e) => setLongitude(parseFloat(e.target.value))}
-                className="bg-command-800 text-white font-mono px-3 py-1.5 rounded-lg border border-slate-700"
+                className="bg-slate-50 text-slate-800 font-mono px-3 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:border-blue-500"
                 placeholder="Longitude"
               />
             </div>
@@ -378,11 +379,11 @@ export const FieldOfficerApp: React.FC = () => {
 
           {/* Highway Sector */}
           <div>
-            <label className="text-[11px] font-bold text-slate-300 block mb-1">Highway Sector Corridor:</label>
+            <label className="text-[11px] font-bold text-slate-700 block mb-1">Highway Sector Corridor:</label>
             <select
               value={selectedRoad}
               onChange={(e) => setSelectedRoad(e.target.value)}
-              className="w-full bg-command-800 text-white px-3 py-1.5 rounded-lg border border-slate-700"
+              className="w-full bg-slate-50 text-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:border-blue-500"
             >
               <option value="R-1024: NH-310A Gangtok–Mangan Sector (Sikkim)">R-1024: NH-310A Gangtok–Mangan Sector (Sikkim)</option>
               <option value="R-1035: NH-10 Siliguri–Rangpo Lifeline (Sikkim)">R-1035: NH-10 Siliguri–Rangpo Lifeline (Sikkim)</option>
@@ -399,17 +400,17 @@ export const FieldOfficerApp: React.FC = () => {
 
           {/* Severity Radio */}
           <div>
-            <label className="text-[11px] font-bold text-slate-300 block mb-1">Severity Rating:</label>
-            <div className="flex items-center gap-3">
+            <label className="text-[11px] font-bold text-slate-700 block mb-1">Severity Rating:</label>
+            <div className="flex items-center gap-4">
               {['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'].map((s) => (
-                <label key={s} className="flex items-center gap-1.5 cursor-pointer text-slate-300">
+                <label key={s} className="flex items-center gap-1.5 cursor-pointer text-slate-700">
                   <input
                     type="radio"
                     name="severity"
                     value={s}
                     checked={severity === s}
                     onChange={(e) => setSeverity(e.target.value)}
-                    className="text-cyan-500 bg-command-800 border-slate-700 focus:ring-0"
+                    className="text-blue-600 border-slate-300 focus:ring-0"
                   />
                   <span className="font-semibold text-xs">{s}</span>
                 </label>
@@ -419,20 +420,20 @@ export const FieldOfficerApp: React.FC = () => {
 
           {/* Description */}
           <div>
-            <label className="text-[11px] font-bold text-slate-300 block mb-1">Field Observation Details:</label>
+            <label className="text-[11px] font-bold text-slate-700 block mb-1">Field Observation Details:</label>
             <textarea
               rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="e.g. Major mud slurry and boulder displacement blocking both lanes across 45 meters..."
-              className="w-full bg-command-800 text-white px-3 py-2 rounded-lg border border-slate-700 focus:outline-none focus:border-cyan-500"
+              className="w-full bg-slate-50 text-slate-800 px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-blue-500"
             />
           </div>
 
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-cyan-950/40 transition-all cursor-pointer flex items-center justify-center gap-2"
+            className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-2"
           >
             <Upload className="w-4 h-4" />
             <span>

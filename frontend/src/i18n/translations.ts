@@ -2,8 +2,8 @@ export type Language = 'en' | 'hi';
 
 export const translations = {
   en: {
-    app_title: "NER SMART LOGISTICS",
-    tagline: "North Eastern Region · 8 States",
+    app_title: "NER SafeRoute",
+    tagline: "Disaster Logistics & Accessibility Intelligence · 8 NER States",
     live_badge: "LIVE",
     states_all: "All 8 NER States",
     drill_label: "Drill",
@@ -118,8 +118,8 @@ export const translations = {
     reroute_recommended: "REROUTE RECOMMENDED"
   },
   hi: {
-    app_title: "पूर्वोत्तर स्मार्ट रसद",
-    tagline: "पूर्वोत्तर क्षेत्र · 8 राज्य",
+    app_title: "NER SafeRoute (पूर्वोत्तर सेफ़रूट)",
+    tagline: "आपदा रसद एवं सुरक्षित मार्ग निगरानी प्रणाली · 8 राज्य",
     live_badge: "सक्रिय",
     states_all: "सभी 8 पूर्वोत्तर राज्य",
     drill_label: "ड्रिल",

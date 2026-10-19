@@ -59,19 +59,19 @@ export const VehicleTracking: React.FC<VehicleTrackingProps> = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3.5 font-sans">
       {/* Header & Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-command-900/80 p-4 rounded-xl border border-command-border">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
         <div>
           <div className="flex items-center gap-2">
-            <Truck className="w-4 h-4 text-cyan-400" />
-            <h2 className="text-base font-bold text-white">Live Convoy & Vehicle GPS Telematics</h2>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 font-semibold">
-              SIMULATION MODE
+            <Truck className="w-4 h-4 text-blue-600" />
+            <h2 className="text-sm sm:text-base font-bold text-slate-900">Live Convoy & Vehicle GPS Telematics</h2>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 font-semibold">
+              AIS-140 GPS SIMULATION
             </span>
           </div>
-          <p className="text-xs text-slate-400">
-            Real-time GPS telemetry, speed monitoring, and dynamic reroute execution.
+          <p className="text-xs text-slate-500">
+            Real-time GPS telemetry, speed monitoring, and dynamic reroute execution for priority supply relief.
           </p>
         </div>
 
@@ -83,15 +83,15 @@ export const VehicleTracking: React.FC<VehicleTrackingProps> = ({
               placeholder="Search vehicle, cargo, dest..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="bg-command-800 text-xs text-slate-200 pl-8 pr-3 py-1.5 rounded-lg border border-slate-700 focus:outline-none focus:border-cyan-500 w-52"
+              className="bg-slate-50 text-xs text-slate-800 pl-8 pr-3 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:border-blue-500 w-52 shadow-xs"
             />
           </div>
           {onRefreshVehicles && (
             <button
               onClick={onRefreshVehicles}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-command-800 hover:bg-command-700 border border-slate-700 text-xs font-semibold text-slate-300 transition-colors"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 transition-colors shadow-xs cursor-pointer"
             >
-              <RefreshCw className="w-3.5 h-3.5 text-cyan-400" />
+              <RefreshCw className="w-3.5 h-3.5 text-blue-600" />
               <span>Refresh Pings</span>
             </button>
           )}
@@ -99,16 +99,19 @@ export const VehicleTracking: React.FC<VehicleTrackingProps> = ({
       </div>
 
       {/* Main 2-Column Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3.5">
         {/* Left 2 Columns: Fleet Table */}
-        <div className="lg:col-span-2 glass-panel p-4 rounded-xl border border-command-border space-y-3">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono block">
-            Monitored Convoys ({filteredVehicles.length})
-          </span>
+        <div className="lg:col-span-2 bg-white p-4 rounded-xl border border-slate-200 space-y-3 shadow-xs">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 font-mono">
+              Monitored Convoys ({filteredVehicles.length})
+            </span>
+            <span className="text-[10px] font-mono text-slate-400">Pings updated every 6s</span>
+          </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-command-950/80 text-[10px] font-mono uppercase text-slate-400 border-b border-slate-800">
+              <thead className="bg-slate-50 text-[10px] font-mono uppercase text-slate-500 border-b border-slate-200">
                 <tr>
                   <th className="py-2.5 px-3">Vehicle ID</th>
                   <th className="py-2.5 px-3">Cargo Consignment</th>
@@ -119,7 +122,7 @@ export const VehicleTracking: React.FC<VehicleTrackingProps> = ({
                   <th className="py-2.5 px-3">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-slate-100">
                 {filteredVehicles.map((v) => {
                   const isSelected = selectedVehicle?.id === v.id;
                   const isDiverted = v.status === 'DIVERTED';
@@ -132,15 +135,15 @@ export const VehicleTracking: React.FC<VehicleTrackingProps> = ({
                         if (onSelectVehicle) onSelectVehicle(v);
                       }}
                       className={`cursor-pointer transition-colors ${
-                        isSelected ? 'bg-cyan-950/40 text-white' : 'hover:bg-command-850/60 text-slate-300'
+                        isSelected ? 'bg-blue-50/70 text-slate-900 font-semibold' : 'hover:bg-slate-50 text-slate-700'
                       }`}
                     >
-                      <td className="py-3 px-3 font-mono font-bold text-cyan-400">
+                      <td className="py-3 px-3 font-mono font-bold text-blue-700">
                         {v.id}
                       </td>
                       <td className="py-3 px-3">
-                        <div className="font-semibold text-white truncate max-w-[180px]">{v.cargo_name}</div>
-                        <span className="text-[10px] text-slate-400">{v.cargo_category} (P-{v.cargo_priority})</span>
+                        <div className="font-semibold text-slate-900 truncate max-w-[180px]">{v.cargo_name}</div>
+                        <span className="text-[10px] text-slate-500">{v.cargo_category} (P-{v.cargo_priority})</span>
                       </td>
                       <td className="py-3 px-3 font-mono">
                         {Math.round(v.current_speed_kmh)} km/h
@@ -151,22 +154,22 @@ export const VehicleTracking: React.FC<VehicleTrackingProps> = ({
                       <td className="py-3 px-3">
                         <span className={`px-2 py-0.5 rounded font-mono font-bold text-[10px] ${
                           v.current_route_risk === 'CRITICAL'
-                            ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+                            ? 'bg-rose-100 text-rose-800 border border-rose-200'
                             : v.current_route_risk === 'HIGH'
-                            ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                            : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                            ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                            : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
                         }`}>
                           {v.current_route_risk}
                         </span>
                       </td>
-                      <td className="py-3 px-3 font-mono font-semibold text-amber-400">
+                      <td className="py-3 px-3 font-mono font-semibold text-amber-700">
                         {v.predicted_delay}
                       </td>
                       <td className="py-3 px-3">
                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                           isDiverted
-                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                            : 'bg-command-800 text-slate-300'
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                            : 'bg-slate-100 text-slate-700'
                         }`}>
                           {v.status}
                         </span>
@@ -181,107 +184,88 @@ export const VehicleTracking: React.FC<VehicleTrackingProps> = ({
 
         {/* Right Column: Selected Vehicle Intelligence Card */}
         {selectedVehicle && (
-          <div className="glass-panel p-5 rounded-xl border border-cyan-500/30 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="bg-white p-5 rounded-xl border border-slate-200 space-y-3.5 shadow-xs">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
-                <span className="text-[10px] font-mono text-cyan-400 font-bold block">
+                <span className="text-[10px] font-mono text-blue-700 font-bold block">
                   VEHICLE TELEMATICS PROFILE
                 </span>
-                <h3 className="text-base font-black text-white">{selectedVehicle.id}: {selectedVehicle.name}</h3>
+                <h3 className="text-base font-bold text-slate-900">{selectedVehicle.id}: {selectedVehicle.name}</h3>
               </div>
               <span className={`px-2 py-1 rounded text-xs font-mono font-bold ${
                 selectedVehicle.status === 'DIVERTED'
-                  ? 'bg-emerald-500 text-white'
+                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
                   : selectedVehicle.status === 'STOPPED'
-                  ? 'bg-rose-500 text-white'
-                  : 'bg-cyan-600 text-white'
+                  ? 'bg-rose-100 text-rose-800 border border-rose-200'
+                  : 'bg-blue-100 text-blue-800 border border-blue-200'
               }`}>
                 {selectedVehicle.status}
               </span>
             </div>
 
             {/* Vehicle Info Specs */}
-            <div className="space-y-2.5 text-xs">
-              <div className="p-2.5 rounded-lg bg-command-950/80 border border-slate-800">
-                <span className="text-[10px] text-slate-400 block font-mono">Assigned Cargo</span>
-                <span className="font-bold text-white text-sm block mt-0.5">{selectedVehicle.cargo_name}</span>
-                <span className="text-[10px] text-emerald-400 font-mono">
+            <div className="space-y-2 text-xs">
+              <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                <span className="text-[10px] text-slate-500 block font-mono">Assigned Cargo</span>
+                <span className="font-bold text-slate-900 text-sm block mt-0.5">{selectedVehicle.cargo_name}</span>
+                <span className="text-[10px] text-emerald-700 font-mono">
                   Category: {selectedVehicle.cargo_category} • Priority: {selectedVehicle.cargo_priority}
                 </span>
               </div>
 
               <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="p-2 rounded bg-command-950 border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block">Current Speed</span>
-                  <span className="font-bold text-white font-mono">{Math.round(selectedVehicle.current_speed_kmh)} km/h</span>
+                <div className="p-2 rounded bg-slate-50 border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block">Current Speed</span>
+                  <span className="font-bold text-slate-900 font-mono">{Math.round(selectedVehicle.current_speed_kmh)} km/h</span>
                 </div>
-                <div className="p-2 rounded bg-command-950 border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block">Heading</span>
-                  <span className="font-bold text-white font-mono">{selectedVehicle.heading_deg}° N</span>
+                <div className="p-2 rounded bg-slate-50 border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block">Heading</span>
+                  <span className="font-bold text-slate-900 font-mono">{selectedVehicle.heading_deg}° N</span>
                 </div>
-                <div className="p-2 rounded bg-command-950 border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block">Normal ETA</span>
-                  <span className="font-bold text-white font-mono">{selectedVehicle.normal_eta}</span>
+                <div className="p-2 rounded bg-slate-50 border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block">Normal ETA</span>
+                  <span className="font-bold text-slate-900 font-mono">{selectedVehicle.normal_eta}</span>
                 </div>
-                <div className="p-2 rounded bg-command-950 border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block">Predicted Delay</span>
-                  <span className="font-bold text-amber-400 font-mono">{selectedVehicle.predicted_delay}</span>
+                <div className="p-2 rounded bg-slate-50 border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block">Predicted Delay</span>
+                  <span className="font-bold text-amber-700 font-mono">{selectedVehicle.predicted_delay}</span>
                 </div>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-command-950/80 border border-slate-800">
-                <span className="text-[10px] text-slate-400 block font-mono">Route Path</span>
-                <div className="text-white font-semibold mt-0.5">
+              <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                <span className="text-[10px] text-slate-500 block font-mono">Route Path</span>
+                <div className="text-slate-900 font-semibold mt-0.5">
                   {selectedVehicle.origin} → {selectedVehicle.destination}
                 </div>
-                <span className="text-[10px] text-slate-400 font-mono block mt-1">
+                <span className="text-[10px] text-slate-500 font-mono block mt-1">
                   Assigned Sector: {selectedVehicle.assigned_road_id}
                 </span>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-command-950/80 border border-slate-800 flex items-center justify-between">
+              <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] text-slate-400 block font-mono">Assigned Driver</span>
-                  <span className="font-bold text-white">{selectedVehicle.driver_name}</span>
+                  <span className="text-[10px] text-slate-500 block font-mono">Assigned Driver</span>
+                  <span className="font-bold text-slate-900">{selectedVehicle.driver_name}</span>
                 </div>
-                <span className="text-xs font-mono text-cyan-400">{selectedVehicle.driver_contact}</span>
+                <span className="text-xs font-mono text-blue-700">{selectedVehicle.driver_contact}</span>
               </div>
             </div>
 
-            {/* Divert Action Button */}
-            {!selectedVehicle.is_diverted ? (
+            {/* Dynamic Detour Trigger */}
+            <div className="pt-2">
               <button
-                onClick={() => handleDivert(selectedVehicle.id)}
-                disabled={diverting}
-                className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-500 hover:to-rose-500 text-white font-bold text-xs shadow-lg shadow-rose-950/50 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                onClick={() => onSimulateDetour ? onSimulateDetour(selectedVehicle.id) : handleDivert(selectedVehicle.id)}
+                disabled={diverting || selectedVehicle.status === 'DIVERTED'}
+                className="w-full py-2.5 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5"
               >
-                <CornerUpRight className="w-4 h-4" />
+                <CornerUpRight className="w-3.5 h-3.5" />
                 <span>
-                  {diverting ? 'Recalculating & Transmitting Reroute...' : 'Divert Convoy to Alternative Corridor'}
+                  {selectedVehicle.status === 'DIVERTED'
+                    ? 'Bypass Detour Successfully Enacted'
+                    : 'Execute Dynamic Bypass Reroute'}
                 </span>
               </button>
-            ) : (
-              <div className="p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-center space-y-1">
-                <div className="text-emerald-400 font-bold text-xs flex items-center justify-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4" />
-                  <span>Convoy Successfully Diverted</span>
-                </div>
-                <p className="text-[11px] text-slate-300">
-                  Rerouted via secondary bypass corridor. Clearance confirmed.
-                </p>
-              </div>
-            )}
-
-            {/* Contingency Simulation Drill Launcher */}
-            {onSimulateDetour && (
-              <button
-                onClick={() => onSimulateDetour(selectedVehicle.id)}
-                className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-purple-950/70 to-indigo-950/70 hover:from-purple-900/80 hover:to-indigo-900/80 border border-purple-500/40 text-purple-200 hover:text-white font-bold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
-              >
-                <Zap className="w-3.5 h-3.5 text-purple-400" />
-                <span>Simulate Disaster & Detour on {selectedVehicle.id}</span>
-              </button>
-            )}
+            </div>
           </div>
         )}
       </div>

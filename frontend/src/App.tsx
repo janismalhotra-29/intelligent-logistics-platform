@@ -33,6 +33,7 @@ export const App: React.FC = () => {
   const [lang, setLang] = useState<Language>('en');
   const [selectedState, setSelectedState] = useState<string>('All');
   const [activeTab, setActiveTab] = useState<NavTab>('command_center');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
 
   // Core Platform Data State
   const [roads, setRoads] = useState<Road[]>([]);
@@ -145,8 +146,21 @@ export const App: React.FC = () => {
     loadAllData();
   };
 
+  const tabTitles: Record<NavTab, string> = {
+    command_center: 'Command Center & GIS Overview',
+    simulation_drill: 'Disaster Simulation Drill',
+    road_intelligence: 'Road Intelligence & XAI',
+    route_planner: 'Route Planner & Detour Engine',
+    vehicle_tracking: 'Vehicle Tracking & Fleet GPS',
+    shipment_management: 'Shipment & Consignment Management',
+    incident_center: 'Disaster & Field Incident Center',
+    alerts: 'Operational Alerts & Directives',
+    analytics: 'Regional Vulnerability Analytics',
+    field_app: 'Field Officer Mobile App'
+  };
+
   return (
-    <div className="min-h-screen bg-command-950 text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-black">
+    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
       {/* Top Header */}
       <Header
         currentRole={role}
@@ -161,6 +175,10 @@ export const App: React.FC = () => {
         scenarioVehicleId={scenarioVehicleId}
         onOpenHelpGuide={() => setHelpGuideOpen(true)}
         onNavigateToSimulation={() => setActiveTab('simulation_drill')}
+        isSidebarCollapsed={isSidebarCollapsed}
+        onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        activeTabTitle={tabTitles[activeTab]}
+        alerts={alerts}
       />
 
       {/* Main Content Area: Sidebar + Active Page */}
@@ -170,6 +188,7 @@ export const App: React.FC = () => {
           setActiveTab={setActiveTab}
           lang={lang}
           alertsCount={alerts.filter((a) => a.alert_level === 'CRITICAL' || a.alert_level === 'WARNING').length}
+          isCollapsed={isSidebarCollapsed}
         />
 
         <main className="flex-1 p-3 md:p-4 overflow-y-auto max-w-[1700px]">

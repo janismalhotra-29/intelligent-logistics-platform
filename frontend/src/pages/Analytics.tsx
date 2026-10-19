@@ -16,7 +16,7 @@ import {
 import { BarChart3, TrendingUp, AlertTriangle, ShieldCheck, MapPin, Clock } from 'lucide-react';
 
 export const Analytics: React.FC = () => {
-  // Vulnerability ranking by state as specified in prompt Section 24
+  // Vulnerability ranking by state
   const STATE_VULNERABILITY = [
     { state: 'Sikkim', high_risk_routes: 24, fill: '#ef4444' },
     { state: 'Arunachal', high_risk_routes: 20, fill: '#f97316' },
@@ -60,26 +60,26 @@ export const Analytics: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3.5 font-sans">
       {/* Top Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-command-900/80 p-4 rounded-xl border border-command-border">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
         <div>
           <div className="flex items-center gap-2">
-            <BarChart3 className="w-4 h-4 text-cyan-400" />
-            <h2 className="text-base font-bold text-white">Logistics & Regional Vulnerability Analytics</h2>
+            <BarChart3 className="w-4 h-4 text-blue-600" />
+            <h2 className="text-sm sm:text-base font-bold text-slate-900">Logistics & Regional Vulnerability Analytics</h2>
           </div>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-500">
             Historical incident metrics, mountain corridor disruption trends, and route reliability across NER.
           </p>
         </div>
       </div>
 
       {/* Grid: Charts Row 1 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
         {/* High-Risk Routes by State */}
-        <div className="glass-panel p-4 rounded-xl border border-command-border space-y-3">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-            <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-3 shadow-xs">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+            <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
               High-Risk Corridors by State (Vulnerability Index)
             </span>
             <span className="text-[10px] font-mono text-slate-400">NER Master Survey</span>
@@ -88,9 +88,9 @@ export const Analytics: React.FC = () => {
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={STATE_VULNERABILITY} layout="vertical">
-                <XAxis type="number" stroke="#64748b" fontSize={11} />
-                <YAxis dataKey="state" type="category" stroke="#64748b" fontSize={11} width={80} />
-                <Tooltip contentStyle={{ backgroundColor: '#0b1120', borderColor: '#334155' }} />
+                <XAxis type="number" stroke="#94a3b8" fontSize={11} />
+                <YAxis dataKey="state" type="category" stroke="#94a3b8" fontSize={11} width={80} />
+                <Tooltip contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', color: '#0f172a' }} />
                 <Bar dataKey="high_risk_routes" radius={[0, 4, 4, 0]}>
                   {STATE_VULNERABILITY.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.fill} />
@@ -102,9 +102,9 @@ export const Analytics: React.FC = () => {
         </div>
 
         {/* Incidents by Type Pie Chart */}
-        <div className="glass-panel p-4 rounded-xl border border-command-border space-y-3">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-            <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-3 shadow-xs">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+            <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
               Disaster Hazard Breakdown (Past 12 Months)
             </span>
             <span className="text-[10px] font-mono text-slate-400">Multi-Agency Telemetry</span>
@@ -126,7 +126,7 @@ export const Analytics: React.FC = () => {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={{ backgroundColor: '#0b1120', borderColor: '#334155' }} />
+                <Tooltip contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', color: '#0f172a' }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -134,11 +134,11 @@ export const Analytics: React.FC = () => {
       </div>
 
       {/* Grid: Charts Row 2 */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3.5">
         {/* Disruption & Transit Delay Trend Line */}
-        <div className="lg:col-span-2 glass-panel p-4 rounded-xl border border-command-border space-y-3">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-            <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider">
+        <div className="lg:col-span-2 bg-white p-4 rounded-xl border border-slate-200 space-y-3 shadow-xs">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+            <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
               Seasonal Monsoon Disruption & Average Transit Delay (Hours)
             </span>
             <span className="text-[10px] font-mono text-slate-400">Peak Monsoon Impact</span>
@@ -147,9 +147,9 @@ export const Analytics: React.FC = () => {
           <div className="h-56 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={TIMELINE_DATA}>
-                <XAxis dataKey="month" stroke="#64748b" fontSize={11} />
-                <YAxis stroke="#64748b" fontSize={11} />
-                <Tooltip contentStyle={{ backgroundColor: '#0b1120', borderColor: '#334155' }} />
+                <XAxis dataKey="month" stroke="#94a3b8" fontSize={11} />
+                <YAxis stroke="#94a3b8" fontSize={11} />
+                <Tooltip contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', color: '#0f172a' }} />
                 <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
                 <Line type="monotone" dataKey="landslides" stroke="#ef4444" strokeWidth={2} name="Landslide Incidents" />
                 <Line type="monotone" dataKey="floods" stroke="#0ea5e9" strokeWidth={2} name="Flood Washouts" />
@@ -160,23 +160,23 @@ export const Analytics: React.FC = () => {
         </div>
 
         {/* Most Vulnerable Corridors Matrix */}
-        <div className="glass-panel p-4 rounded-xl border border-command-border space-y-2">
-          <span className="text-xs font-bold text-slate-300 uppercase tracking-wider block border-b border-slate-800 pb-2">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-2 shadow-xs">
+          <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block border-b border-slate-100 pb-2">
             Most Vulnerable Corridors
           </span>
           <div className="space-y-1.5 overflow-y-auto max-h-56">
             {VULNERABLE_ROUTES.map((r, idx) => (
               <div
                 key={idx}
-                className="p-2 rounded-lg bg-command-950/60 border border-slate-800/80 flex items-center justify-between text-xs"
+                className="p-2 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between text-xs"
               >
                 <div>
-                  <span className="font-bold text-white block text-[11px] truncate max-w-[150px]">{r.name}</span>
-                  <span className="text-[10px] text-slate-400">Reliability: {r.reliability}</span>
+                  <span className="font-bold text-slate-900 block text-[11px] truncate max-w-[150px]">{r.name}</span>
+                  <span className="text-[10px] text-slate-500">Reliability: {r.reliability}</span>
                 </div>
                 <div className="text-right">
-                  <span className={`px-1.5 py-0.2 rounded font-mono font-bold text-[9px] ${
-                    r.risk > 80 ? 'bg-rose-500/20 text-rose-300' : r.risk > 50 ? 'bg-amber-500/20 text-amber-300' : 'bg-emerald-500/20 text-emerald-300'
+                  <span className={`px-2 py-0.5 rounded font-mono font-bold text-[10px] ${
+                    r.risk > 80 ? 'bg-rose-100 text-rose-800' : r.risk > 50 ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
                   }`}>
                     {r.risk}% Risk
                   </span>

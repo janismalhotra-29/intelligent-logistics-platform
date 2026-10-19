@@ -15,7 +15,8 @@ import {
   HelpCircle,
   Activity,
   Layers,
-  Sparkles
+  Sparkles,
+  Info
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -73,25 +74,25 @@ export const RoadIntelligence: React.FC<RoadIntelligenceProps> = ({ initialRoadI
   }));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3.5 font-sans">
       {/* Top Header & Road Selector */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-command-900/80 p-4 rounded-xl border border-command-border">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
         <div>
-          <h2 className="text-base font-bold text-white flex items-center gap-2">
-            <Activity className="w-4 h-4 text-cyan-400" />
+          <h2 className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
+            <Activity className="w-4 h-4 text-blue-600" />
             <span>Road Intelligence & Explainable AI Disruption Inspector</span>
           </h2>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-500">
             Physical topography, sensor telemetry, and deterministic ML predictions per highway sector.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <label className="text-xs text-slate-400 font-medium">Select Highway Sector:</label>
+          <label className="text-xs text-slate-600 font-medium">Select Highway Sector:</label>
           <select
             value={selectedRoadId}
             onChange={(e) => setSelectedRoadId(e.target.value)}
-            className="bg-command-800 text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700 focus:outline-none focus:border-cyan-500 cursor-pointer"
+            className="bg-slate-50 text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:border-blue-500 cursor-pointer"
           >
             {roads.map((r) => (
               <option key={r.id} value={r.id}>
@@ -103,99 +104,105 @@ export const RoadIntelligence: React.FC<RoadIntelligenceProps> = ({ initialRoadI
       </div>
 
       {loading ? (
-        <div className="glass-panel p-12 rounded-xl text-center text-slate-400 flex flex-col items-center justify-center space-y-3">
-          <div className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="bg-white p-12 rounded-xl border border-slate-200 text-center text-slate-500 flex flex-col items-center justify-center space-y-3 shadow-xs">
+          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
           <span className="text-xs font-mono">Loading telemetry & computing ML risk vectors...</span>
         </div>
       ) : intelligence ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3.5 items-start">
           {/* Column 1: Core Physical Parameters & Status */}
-          <div className="space-y-4">
+          <div className="space-y-3.5">
             {/* Status Hero Card */}
-            <div className={`p-4 rounded-xl border ${
+            <div className={`p-4 rounded-xl border shadow-xs ${
               road?.status === 'BLOCKED'
-                ? 'border-rose-500/50 bg-rose-950/40 shadow-lg shadow-rose-950/40'
+                ? 'border-rose-200 bg-rose-50/50'
                 : road?.status === 'WATCH'
-                ? 'border-yellow-500/50 bg-yellow-950/40'
+                ? 'border-amber-200 bg-amber-50/50'
                 : road?.status === 'RESTRICTED'
-                ? 'border-orange-500/50 bg-orange-950/40'
-                : 'border-emerald-500/50 bg-emerald-950/40'
+                ? 'border-orange-200 bg-orange-50/50'
+                : 'border-emerald-200 bg-emerald-50/50'
             }`}>
               <div className="flex items-center justify-between mb-2">
-                <span className="font-mono text-xs font-bold text-slate-400">ROAD {road?.id}</span>
-                <span className={`px-2 py-0.5 rounded text-xs font-black font-mono tracking-wider ${
-                  road?.status === 'BLOCKED' ? 'bg-rose-500 text-white animate-pulse' : 'bg-command-800 text-white'
+                <span className="font-mono text-xs font-bold text-slate-600">ROAD {road?.id}</span>
+                <span className={`px-2 py-0.5 rounded text-xs font-bold font-mono tracking-wider ${
+                  road?.status === 'BLOCKED'
+                    ? 'bg-rose-600 text-white animate-pulse'
+                    : road?.status === 'WATCH'
+                    ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                    : road?.status === 'RESTRICTED'
+                    ? 'bg-orange-100 text-orange-800 border border-orange-200'
+                    : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
                 }`}>
-                  {road?.status === 'BLOCKED' ? '🔴 BLOCKED' : road?.status === 'WATCH' ? '🟡 WATCH' : road?.status === 'RESTRICTED' ? '🟠 RESTRICTED' : '🟢 ACCESSIBLE'}
+                  {road?.status === 'BLOCKED' ? 'BLOCKED' : road?.status === 'WATCH' ? 'WATCH' : road?.status === 'RESTRICTED' ? 'RESTRICTED' : 'ACCESSIBLE'}
                 </span>
               </div>
-              <h3 className="text-sm font-bold text-white">{road?.name}</h3>
-              <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+              <h3 className="text-sm font-bold text-slate-900">{road?.name}</h3>
+              <p className="text-xs text-slate-600 mt-1 leading-relaxed">
                 {accessibility?.reason}
               </p>
               
-              <div className="mt-3 pt-3 border-t border-slate-700/60 flex items-center justify-between text-xs">
-                <span className="text-slate-400">Predicted Disruption Window:</span>
-                <span className="font-mono font-bold text-rose-300 px-2 py-0.5 rounded bg-rose-950/80 border border-rose-800">
+              <div className="mt-3 pt-3 border-t border-slate-200 flex items-center justify-between text-xs">
+                <span className="text-slate-500 font-medium">Predicted Disruption Window:</span>
+                <span className="font-mono font-bold text-rose-700 px-2 py-0.5 rounded bg-rose-100 border border-rose-200">
                   {riskAnalysis?.disruption_window}
                 </span>
               </div>
             </div>
 
             {/* Physical Telemetry Table */}
-            <div className="glass-panel p-4 rounded-xl border border-command-border space-y-3">
-              <span className="text-xs font-bold text-slate-300 uppercase tracking-wider block border-b border-slate-800 pb-2">
+            <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-3 shadow-xs">
+              <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block border-b border-slate-100 pb-2">
                 Terrain & Physical Metrics
               </span>
-              <div className="grid grid-cols-2 gap-2.5 text-xs">
-                <div className="bg-command-950/60 p-2.5 rounded-lg border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block">Elevation</span>
-                  <span className="font-bold text-white text-sm font-mono">{road?.elevation_m} m</span>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block">Elevation</span>
+                  <span className="font-bold text-slate-900 text-sm font-mono">{road?.elevation_m} m</span>
                 </div>
-                <div className="bg-command-950/60 p-2.5 rounded-lg border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block">Slope Angle</span>
-                  <span className="font-bold text-white text-sm font-mono">{road?.slope_deg}° (Steep)</span>
+                <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block">Slope Angle</span>
+                  <span className="font-bold text-slate-900 text-sm font-mono">{road?.slope_deg}° (Steep)</span>
                 </div>
-                <div className="bg-command-950/60 p-2.5 rounded-lg border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block">Historical Incidents</span>
-                  <span className="font-bold text-amber-400 text-sm font-mono">{intelligence?.historical_incidents_count} past slides</span>
+                <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block">Historical Incidents</span>
+                  <span className="font-bold text-amber-700 text-sm font-mono">{intelligence?.historical_incidents_count} past slides</span>
                 </div>
-                <div className="bg-command-950/60 p-2.5 rounded-lg border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block">Last Field Report</span>
-                  <span className="font-bold text-white text-sm">{intelligence?.last_field_report}</span>
+                <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block">Last Field Report</span>
+                  <span className="font-bold text-slate-900 text-sm">{intelligence?.last_field_report}</span>
                 </div>
-                <div className="bg-command-950/60 p-2.5 rounded-lg border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block">Road Surface</span>
-                  <span className="font-bold text-white text-sm">{road?.road_surface}</span>
+                <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block">Road Surface</span>
+                  <span className="font-bold text-slate-900 text-sm">{road?.road_surface}</span>
                 </div>
-                <div className="bg-command-950/60 p-2.5 rounded-lg border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block">Bridge Integrity</span>
-                  <span className="font-bold text-white text-sm">{road?.bridge_condition_score} / 5</span>
+                <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block">Bridge Integrity</span>
+                  <span className="font-bold text-slate-900 text-sm">{road?.bridge_condition_score} / 5</span>
                 </div>
               </div>
             </div>
 
             {/* Alternative Bypass Card */}
             {alternative && (
-              <div className="glass-panel p-4 rounded-xl border border-emerald-500/30 bg-emerald-950/20 space-y-2">
-                <div className="flex items-center justify-between text-xs font-bold text-emerald-400">
+              <div className="bg-emerald-50/60 p-4 rounded-xl border border-emerald-200 space-y-2 shadow-xs">
+                <div className="flex items-center justify-between text-xs font-bold text-emerald-800">
                   <span>Recommended Safe Bypass Corridor</span>
-                  <span className="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[10px]">
+                  <span className="px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-900 font-mono text-[10px] border border-emerald-300">
                     {alternative.status}
                   </span>
                 </div>
-                <h4 className="text-xs font-bold text-white">{alternative.alternative_name}</h4>
-                <p className="text-[11px] text-slate-300 font-mono">
+                <h4 className="text-xs font-bold text-slate-900">{alternative.alternative_name}</h4>
+                <p className="text-[11px] text-slate-600 font-mono">
                   Path: {alternative.route_path}
                 </p>
-                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-emerald-900/60 text-xs">
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-emerald-200 text-xs">
                   <div>
-                    <span className="text-[10px] text-slate-400 block">Added Distance</span>
-                    <span className="font-bold text-white font-mono">{alternative.additional_distance}</span>
+                    <span className="text-[10px] text-slate-500 block">Added Distance</span>
+                    <span className="font-bold text-slate-900 font-mono">{alternative.additional_distance}</span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-slate-400 block">Added Delay</span>
-                    <span className="font-bold text-white font-mono">{alternative.estimated_additional_delay}</span>
+                    <span className="text-[10px] text-slate-500 block">Added Delay</span>
+                    <span className="font-bold text-slate-900 font-mono">{alternative.estimated_additional_delay}</span>
                   </div>
                 </div>
               </div>
@@ -203,46 +210,46 @@ export const RoadIntelligence: React.FC<RoadIntelligenceProps> = ({ initialRoadI
           </div>
 
           {/* Column 2: Explainable AI Attribution (XAI) */}
-          <div className="space-y-4">
-            <div className="glass-panel p-4 rounded-xl border border-command-border space-y-3">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+          <div className="space-y-3.5">
+            <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-3 shadow-xs">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-blue-600" />
                   <span>Explainable AI Risk Breakdown</span>
                 </span>
-                <span className="text-[10px] font-mono text-slate-400">Deterministic Tree Weights</span>
+                <span className="text-[10px] font-mono text-slate-400">Decision Tree Weights</span>
               </div>
 
               {/* Big Risk Number */}
-              <div className="flex items-center justify-between p-3 rounded-lg bg-command-950/80 border border-slate-800">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 border border-slate-200">
                 <div>
-                  <span className="text-[10px] text-slate-400 block font-mono">Total Disruption Probability</span>
-                  <span className="text-3xl font-black font-mono text-rose-400">
+                  <span className="text-[10px] text-slate-500 block font-mono">Total Disruption Probability</span>
+                  <span className="text-3xl font-black font-mono text-rose-600">
                     {riskAnalysis?.risk_score}%
                   </span>
                 </div>
                 <div className="text-right">
-                  <span className="text-[10px] text-slate-400 block font-mono">Confidence Level</span>
-                  <span className="text-lg font-bold font-mono text-emerald-400">
+                  <span className="text-[10px] text-slate-500 block font-mono">Confidence Level</span>
+                  <span className="text-lg font-bold font-mono text-emerald-700">
                     {riskAnalysis?.model_confidence}%
                   </span>
                 </div>
               </div>
 
-              {/* Explainable AI Contributors Bar Chart as specified in prompt Section 30 */}
+              {/* Explainable AI Contributors Bar Chart */}
               <div className="space-y-2 pt-1">
-                <span className="text-[11px] font-semibold text-slate-300 block">
+                <span className="text-xs font-semibold text-slate-700 block">
                   Major Contributing Risk Drivers (+ Points):
                 </span>
                 {riskAnalysis?.contributors?.map((c: any, idx: number) => (
                   <div key={idx} className="space-y-1">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-300 truncate max-w-[200px]">{c.factor}</span>
-                      <span className="font-mono font-bold text-rose-400">{c.points}</span>
+                      <span className="text-slate-600 truncate max-w-[200px]">{c.factor}</span>
+                      <span className="font-mono font-bold text-rose-600">{c.points}</span>
                     </div>
-                    <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                    <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-gradient-to-r from-amber-500 to-rose-500"
+                        className="h-full rounded-full bg-blue-600"
                         style={{ width: `${Math.min(100, c.value * 3)}%` }}
                       ></div>
                     </div>
@@ -251,80 +258,91 @@ export const RoadIntelligence: React.FC<RoadIntelligenceProps> = ({ initialRoadI
               </div>
 
               {/* Sub-Risk Categorization */}
-              <div className="grid grid-cols-2 gap-2 pt-3 border-t border-slate-800 text-xs">
-                <div className="p-2 rounded bg-command-950 border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block">Landslide Risk</span>
-                  <span className="font-bold text-rose-400 font-mono text-sm">{riskAnalysis?.landslide_risk}%</span>
+              <div className="grid grid-cols-2 gap-2 pt-3 border-t border-slate-100 text-xs">
+                <div className="p-2 rounded bg-slate-50 border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block">Landslide Risk</span>
+                  <span className="font-bold text-rose-600 font-mono text-sm">{riskAnalysis?.landslide_risk}%</span>
                 </div>
-                <div className="p-2 rounded bg-command-950 border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block">Flood Inundation</span>
-                  <span className="font-bold text-sky-400 font-mono text-sm">{riskAnalysis?.flood_risk}%</span>
+                <div className="p-2 rounded bg-slate-50 border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block">Flood Inundation</span>
+                  <span className="font-bold text-blue-600 font-mono text-sm">{riskAnalysis?.flood_risk}%</span>
                 </div>
-                <div className="p-2 rounded bg-command-950 border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block">Rainfall Saturation</span>
-                  <span className="font-bold text-amber-400 font-mono text-sm">{riskAnalysis?.heavy_rain_risk}%</span>
+                <div className="p-2 rounded bg-slate-50 border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block">Rainfall Saturation</span>
+                  <span className="font-bold text-amber-600 font-mono text-sm">{riskAnalysis?.heavy_rain_risk}%</span>
                 </div>
-                <div className="p-2 rounded bg-command-950 border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block">Convoy Congestion</span>
-                  <span className="font-bold text-slate-200 font-mono text-sm">{riskAnalysis?.traffic_risk}%</span>
+                <div className="p-2 rounded bg-slate-50 border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block">Convoy Congestion</span>
+                  <span className="font-bold text-slate-700 font-mono text-sm">{riskAnalysis?.traffic_risk}%</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Column 3: Weather Radar & Precipitation Trends */}
-          <div className="space-y-4">
-            <div className="glass-panel p-4 rounded-xl border border-command-border space-y-3">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <CloudRain className="w-3.5 h-3.5 text-cyan-400" />
+          <div className="space-y-3.5">
+            <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-3 shadow-xs">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <CloudRain className="w-3.5 h-3.5 text-blue-600" />
                   <span>Rainfall Telemetry</span>
                 </span>
-                <span className="text-[10px] font-mono text-slate-400">{weather?.name}</span>
+                <span className="text-[10px] font-mono text-slate-500">{weather?.name}</span>
               </div>
 
               <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                <div className="p-2 rounded bg-command-950 border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block">1-Hour</span>
-                  <span className="font-bold text-white font-mono">{weather?.rainfall_1h_mm} mm</span>
+                <div className="p-2 rounded bg-slate-50 border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block">1-Hour</span>
+                  <span className="font-bold text-slate-900 font-mono">{weather?.rainfall_1h_mm} mm</span>
                 </div>
-                <div className="p-2 rounded bg-command-950 border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block">6-Hour</span>
-                  <span className="font-bold text-white font-mono">{weather?.rainfall_6h_mm} mm</span>
+                <div className="p-2 rounded bg-slate-50 border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block">6-Hour</span>
+                  <span className="font-bold text-slate-900 font-mono">{weather?.rainfall_6h_mm} mm</span>
                 </div>
-                <div className="p-2 rounded bg-command-950 border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block">24-Hour</span>
-                  <span className="font-bold text-rose-400 font-mono">{weather?.rainfall_24h_mm} mm</span>
+                <div className="p-2 rounded bg-slate-50 border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block">24-Hour</span>
+                  <span className="font-bold text-rose-600 font-mono">{weather?.rainfall_24h_mm} mm</span>
                 </div>
               </div>
 
               {/* Rainfall Trend Graph */}
               <div className="pt-2">
-                <span className="text-[11px] font-semibold text-slate-400 block mb-2">
+                <span className="text-[11px] font-semibold text-slate-600 block mb-2">
                   24-Hour Rainfall Trend (Cumulative Acceleration mm)
                 </span>
                 <div className="h-44 w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={rainfallTrendData}>
-                      <XAxis dataKey="hour" stroke="#64748b" fontSize={10} />
-                      <YAxis stroke="#64748b" fontSize={10} />
-                      <Tooltip contentStyle={{ backgroundColor: '#0b1120', borderColor: '#334155' }} />
-                      <Line type="monotone" dataKey="rainfall" stroke="#0ea5e9" strokeWidth={2} dot={{ r: 3 }} />
+                      <XAxis dataKey="hour" stroke="#94a3b8" fontSize={10} />
+                      <YAxis stroke="#94a3b8" fontSize={10} />
+                      <Tooltip contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', color: '#0f172a' }} />
+                      <Line type="monotone" dataKey="rainfall" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-800">
-                <div className="p-2 rounded bg-command-950 border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block">Forecast (Next 24h)</span>
-                  <span className="font-bold text-white font-mono">{weather?.forecast_rainfall_mm} mm</span>
+              <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-100">
+                <div className="p-2 rounded bg-slate-50 border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block">Forecast (Next 24h)</span>
+                  <span className="font-bold text-slate-900 font-mono">{weather?.forecast_rainfall_mm} mm</span>
                 </div>
-                <div className="p-2 rounded bg-command-950 border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block">Warning State</span>
-                  <span className="font-bold text-rose-400 font-mono text-xs">{weather?.warning_level}</span>
+                <div className="p-2 rounded bg-slate-50 border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block">Warning State</span>
+                  <span className="font-bold text-rose-600 font-mono text-xs">{weather?.warning_level}</span>
                 </div>
               </div>
+            </div>
+
+            {/* Safety Disclaimer Banner */}
+            <div className="p-3 bg-amber-50/70 border border-amber-200 rounded-xl text-xs text-amber-900 space-y-1 shadow-xs">
+              <div className="flex items-center gap-1.5 font-bold">
+                <Info className="w-4 h-4 text-amber-700 shrink-0" />
+                <span>Deterministic ML Advisory Notice</span>
+              </div>
+              <p className="text-[11px] text-amber-800 leading-snug">
+                Risk predictions are probabilistic estimates based on rainfall saturation and gradient factors. They assist emergency dispatch but do not guarantee absolute transit safety. Ground inspection takes precedence.
+              </p>
             </div>
           </div>
         </div>

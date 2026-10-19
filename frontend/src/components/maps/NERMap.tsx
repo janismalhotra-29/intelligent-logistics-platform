@@ -259,19 +259,19 @@ export const NERMap: React.FC<NERMapProps> = ({
   };
 
   return (
-    <div className="relative w-full rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-[#060a14]" style={{ height }}>
+    <div className="relative w-full rounded-xl overflow-hidden border border-slate-200 shadow-xs bg-slate-100" style={{ height }}>
       {/* Top Right Floating Controls */}
       <div className="absolute top-3 right-3 z-[400] flex items-center gap-2">
         {/* Basemap Style Selector */}
-        <div className="bg-command-950/90 border border-slate-700/80 rounded-xl px-2.5 py-1.5 shadow-xl backdrop-blur-md flex items-center gap-1.5 text-xs">
-          <MapIcon className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+        <div className="bg-white/95 border border-slate-200 rounded-lg px-2.5 py-1.5 shadow-sm backdrop-blur-md flex items-center gap-1.5 text-xs">
+          <MapIcon className="w-3.5 h-3.5 text-blue-600 shrink-0" />
           <select
             value={activeBasemap}
             onChange={(e) => setActiveBasemap(e.target.value as keyof typeof BASEMAP_TILES)}
-            className="bg-transparent text-slate-200 text-xs font-semibold focus:outline-none cursor-pointer pr-1"
+            className="bg-transparent text-slate-700 text-xs font-semibold focus:outline-none cursor-pointer pr-1"
           >
             {Object.entries(BASEMAP_TILES).map(([k, v]) => (
-              <option key={k} value={k} className="bg-command-900 text-slate-100">
+              <option key={k} value={k} className="bg-white text-slate-800">
                 {v.name}
               </option>
             ))}
@@ -281,69 +281,69 @@ export const NERMap: React.FC<NERMapProps> = ({
         {/* GIS Layer Menu Button */}
         <button
           onClick={() => setShowLayerMenu(!showLayerMenu)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-command-950/90 hover:bg-command-900 text-xs font-semibold text-white border border-slate-700/80 shadow-xl backdrop-blur-md transition-all cursor-pointer"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/95 hover:bg-slate-50 text-xs font-semibold text-slate-700 border border-slate-200 shadow-sm backdrop-blur-md transition-all cursor-pointer"
         >
-          <Layers className="w-3.5 h-3.5 text-cyan-400" />
+          <Layers className="w-3.5 h-3.5 text-blue-600" />
           <span>Layers</span>
         </button>
 
         {showLayerMenu && (
-          <div className="absolute top-11 right-0 bg-command-950/95 border border-slate-700/80 rounded-xl p-3 shadow-2xl backdrop-blur-md w-56 space-y-2 text-xs">
+          <div className="absolute top-11 right-0 bg-white border border-slate-200 rounded-xl p-3 shadow-lg w-56 space-y-2 text-xs text-slate-700">
             <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold block mb-1">
               GIS Layer Overlays
             </span>
-            <label className="flex items-center justify-between cursor-pointer text-slate-300 hover:text-white">
+            <label className="flex items-center justify-between cursor-pointer hover:text-slate-900">
               <span>8 State Boundaries</span>
               <input
                 type="checkbox"
                 checked={layers.stateBoundaries}
                 onChange={(e) => setLayers({ ...layers, stateBoundaries: e.target.checked })}
-                className="rounded text-cyan-500 bg-command-800 border-slate-700 focus:ring-0"
+                className="rounded text-blue-600 border-slate-300 focus:ring-0"
               />
             </label>
-            <label className="flex items-center justify-between cursor-pointer text-slate-300 hover:text-white">
+            <label className="flex items-center justify-between cursor-pointer hover:text-slate-900">
               <span>Highway Corridors</span>
               <input
                 type="checkbox"
                 checked={layers.roads}
                 onChange={(e) => setLayers({ ...layers, roads: e.target.checked })}
-                className="rounded text-cyan-500 bg-command-800 border-slate-700 focus:ring-0"
+                className="rounded text-blue-600 border-slate-300 focus:ring-0"
               />
             </label>
-            <label className="flex items-center justify-between cursor-pointer text-slate-300 hover:text-white">
+            <label className="flex items-center justify-between cursor-pointer hover:text-slate-900">
               <span>AI Recommended Detour</span>
               <input
                 type="checkbox"
                 checked={layers.aiDetour}
                 onChange={(e) => setLayers({ ...layers, aiDetour: e.target.checked })}
-                className="rounded text-purple-500 bg-command-800 border-slate-700 focus:ring-0"
+                className="rounded text-purple-600 border-slate-300 focus:ring-0"
               />
             </label>
-            <label className="flex items-center justify-between cursor-pointer text-slate-300 hover:text-white">
+            <label className="flex items-center justify-between cursor-pointer hover:text-slate-900">
               <span>Relief Fleet Vehicles</span>
               <input
                 type="checkbox"
                 checked={layers.vehicles}
                 onChange={(e) => setLayers({ ...layers, vehicles: e.target.checked })}
-                className="rounded text-cyan-500 bg-command-800 border-slate-700 focus:ring-0"
+                className="rounded text-blue-600 border-slate-300 focus:ring-0"
               />
             </label>
-            <label className="flex items-center justify-between cursor-pointer text-slate-300 hover:text-white">
+            <label className="flex items-center justify-between cursor-pointer hover:text-slate-900">
               <span>Field Incidents</span>
               <input
                 type="checkbox"
                 checked={layers.incidents}
                 onChange={(e) => setLayers({ ...layers, incidents: e.target.checked })}
-                className="rounded text-cyan-500 bg-command-800 border-slate-700 focus:ring-0"
+                className="rounded text-rose-600 border-slate-300 focus:ring-0"
               />
             </label>
-            <label className="flex items-center justify-between cursor-pointer text-slate-300 hover:text-white">
+            <label className="flex items-center justify-between cursor-pointer hover:text-slate-900">
               <span>Logistics Hubs</span>
               <input
                 type="checkbox"
                 checked={layers.hubs}
                 onChange={(e) => setLayers({ ...layers, hubs: e.target.checked })}
-                className="rounded text-cyan-500 bg-command-800 border-slate-700 focus:ring-0"
+                className="rounded text-blue-600 border-slate-300 focus:ring-0"
               />
             </label>
           </div>

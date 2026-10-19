@@ -11,7 +11,6 @@ import {
   Layers,
   AlertTriangle,
   Navigation,
-  Sparkles,
   Compass,
   Zap
 } from 'lucide-react';
@@ -174,41 +173,41 @@ export const ScenarioModal: React.FC<ScenarioModalProps> = ({
   const currentInfo = SIX_STEPS[currentStage - 1];
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-command-950 border border-slate-700/80 rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         {/* Header */}
-        <div className="px-5 py-3 border-b border-slate-800 flex items-center justify-between bg-command-900">
+        <div className="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50/80">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-rose-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-950/50 text-white">
+            <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center shadow-xs text-blue-700">
               <Layers className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold text-white tracking-tight">
+                <h3 className="text-sm font-bold text-slate-900 tracking-tight">
                   Disaster Simulation & Detour Drill
                 </h3>
-                <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold">
+                <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200 font-bold">
                   Interactive Contingency Engine
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-500">
                 Select any convoy, choose any phase directly, and inspect real-time AI rerouting and map updates.
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-command-800 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Convoy & Route Scenario Selector */}
-        <div className="bg-command-900/80 px-5 py-2.5 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div className="bg-slate-50/50 px-5 py-2.5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs">
           <div className="flex items-center gap-2">
-            <Compass className="w-4 h-4 text-purple-400" />
-            <span className="font-bold text-slate-300 font-mono text-[11px] uppercase">
+            <Compass className="w-4 h-4 text-blue-600" />
+            <span className="font-bold text-slate-700 font-mono text-[11px] uppercase">
               Select Target Convoy & Corridor:
             </span>
           </div>
@@ -220,8 +219,8 @@ export const ScenarioModal: React.FC<ScenarioModalProps> = ({
                 onClick={() => handleConvoyChange(c.id)}
                 className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                   selectedConvoyId === c.id
-                    ? 'bg-purple-600 text-white shadow-md shadow-purple-950/60 ring-1 ring-purple-400 font-bold'
-                    : 'bg-command-950 text-slate-400 hover:text-white border border-slate-800'
+                    ? 'bg-blue-600 text-white shadow-xs font-bold'
+                    : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
                 }`}
               >
                 <span>{c.id}</span>
@@ -234,21 +233,21 @@ export const ScenarioModal: React.FC<ScenarioModalProps> = ({
         {/* Body Content */}
         <div className="p-5 overflow-y-auto space-y-4">
           {/* Active Convoy Specs Banner */}
-          <div className="p-3 rounded-xl bg-command-900 border border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs shadow-xs">
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-bold text-white text-xs">{currentConvoy.name}</span>
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-purple-950 text-purple-300 border border-purple-800">
+                <span className="font-bold text-slate-900 text-xs">{currentConvoy.name}</span>
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-blue-50 text-blue-700 border border-blue-200 font-medium">
                   {currentConvoy.origin} → {currentConvoy.destination}
                 </span>
               </div>
-              <span className="text-[11px] text-slate-400 block mt-0.5">
-                Cargo: <strong className="text-slate-200">{currentConvoy.cargo}</strong> • Driver: {currentConvoy.driver}
+              <span className="text-[11px] text-slate-500 block mt-0.5">
+                Cargo: <strong className="text-slate-800">{currentConvoy.cargo}</strong> • Driver: {currentConvoy.driver}
               </span>
             </div>
             <div className="text-right text-[11px] font-mono">
-              <span className="text-rose-400 font-semibold block">Disruption: {currentConvoy.disasterType}</span>
-              <span className="text-purple-300 font-bold">Bypass: {currentConvoy.bypassRoad.split('(')[0]} ({currentConvoy.bypassOverhead})</span>
+              <span className="text-rose-700 font-semibold block">Disruption: {currentConvoy.disasterType}</span>
+              <span className="text-blue-700 font-bold">Bypass: {currentConvoy.bypassRoad.split('(')[0]} ({currentConvoy.bypassOverhead})</span>
             </div>
           </div>
 
@@ -256,12 +255,12 @@ export const ScenarioModal: React.FC<ScenarioModalProps> = ({
           <div>
             <div className="flex items-center justify-between mb-1.5 px-1">
               <div className="flex items-center gap-1.5">
-                <Zap className="w-3.5 h-3.5 text-amber-400" />
-                <span className="text-[11px] uppercase font-mono font-bold text-amber-300">
+                <Zap className="w-3.5 h-3.5 text-amber-600" />
+                <span className="text-[11px] uppercase font-mono font-bold text-amber-800">
                   1-Click Direct Jump — Click Any Phase Below:
                 </span>
               </div>
-              <span className="text-[10px] font-mono text-cyan-400 font-bold bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-800">
+              <span className="text-[10px] font-mono text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
                 Phase {currentStage} / 6 Active
               </span>
             </div>
@@ -276,28 +275,28 @@ export const ScenarioModal: React.FC<ScenarioModalProps> = ({
                     key={s.stage}
                     onClick={() => handleStageSelect(s.stage)}
                     disabled={loading}
-                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer relative group ${
+                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer relative group shadow-xs ${
                       isCurrent
-                        ? 'border-purple-400 bg-purple-950/70 shadow-lg shadow-purple-950/60 ring-2 ring-purple-400 scale-[1.02]'
+                        ? 'border-blue-600 bg-blue-50 text-blue-950 ring-2 ring-blue-500 scale-[1.02]'
                         : isPassed
-                        ? 'border-emerald-600/50 bg-emerald-950/20 text-slate-300 hover:border-emerald-400'
-                        : 'border-slate-800 bg-command-900/60 opacity-80 hover:opacity-100 hover:border-slate-600'
+                        ? 'border-emerald-200 bg-emerald-50/50 text-slate-700 hover:border-emerald-300'
+                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
                       <span className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded ${
-                        isCurrent ? 'bg-purple-800 text-white' : 'bg-command-900 text-slate-400'
+                        isCurrent ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'
                       }`}>
                         Phase {s.stage}
                       </span>
                       {isPassed ? (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                       ) : (
-                        <Icon className={`w-3.5 h-3.5 ${isCurrent ? 'text-purple-300' : 'text-slate-500'}`} />
+                        <Icon className={`w-3.5 h-3.5 ${isCurrent ? 'text-blue-700' : 'text-slate-400'}`} />
                       )}
                     </div>
-                    <h4 className="text-[11px] font-bold text-white leading-tight truncate">{s.title}</h4>
-                    <span className="text-[9px] text-slate-400 block truncate">{s.subtitle}</span>
+                    <h4 className="text-[11px] font-bold text-slate-900 leading-tight truncate">{s.title}</h4>
+                    <span className="text-[9px] text-slate-500 block truncate">{s.subtitle}</span>
                   </button>
                 );
               })}
@@ -305,34 +304,34 @@ export const ScenarioModal: React.FC<ScenarioModalProps> = ({
           </div>
 
           {/* Active Phase Detailed Showcase */}
-          <div className="p-4 rounded-xl border border-slate-700 bg-command-900 space-y-3">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+          <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-3 shadow-xs">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
               <div>
-                <span className="text-[10px] font-mono uppercase text-purple-400 font-bold block">
+                <span className="text-[10px] font-mono uppercase text-blue-700 font-bold block">
                   PHASE {currentStage} OF 6: {currentInfo.subtitle.toUpperCase()}
                 </span>
-                <h4 className="text-base font-black text-white mt-0.5">{currentInfo.title}</h4>
-                <p className="text-xs text-slate-300 mt-1 leading-relaxed max-w-2xl">
+                <h4 className="text-base font-bold text-slate-900 mt-0.5">{currentInfo.title}</h4>
+                <p className="text-xs text-slate-600 mt-1 leading-relaxed max-w-2xl">
                   {currentInfo.desc}
                 </p>
               </div>
 
-              <div className="flex items-center gap-3 bg-command-950 p-2 rounded-xl border border-slate-800 shrink-0">
-                <div className="text-center px-2 border-r border-slate-800">
-                  <span className="text-[9px] font-mono text-slate-400 uppercase block">Route Risk</span>
+              <div className="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border border-slate-200 shrink-0">
+                <div className="text-center px-2 border-r border-slate-200">
+                  <span className="text-[9px] font-mono text-slate-500 uppercase block">Route Risk</span>
                   <span className={`text-xl font-black font-mono ${
                     parseInt(currentInfo.risk) > 70
-                      ? 'text-rose-400'
+                      ? 'text-rose-600'
                       : parseInt(currentInfo.risk) > 40
-                      ? 'text-amber-400'
-                      : 'text-emerald-400'
+                      ? 'text-amber-600'
+                      : 'text-emerald-600'
                   }`}>
                     {currentInfo.risk}
                   </span>
                 </div>
                 <div className="text-center px-2">
-                  <span className="text-[9px] font-mono text-slate-400 uppercase block">Weather</span>
-                  <span className="text-xs font-bold font-mono text-white block mt-1">
+                  <span className="text-[9px] font-mono text-slate-500 uppercase block">Weather</span>
+                  <span className="text-xs font-bold font-mono text-slate-800 block mt-1">
                     {currentInfo.weather}
                   </span>
                 </div>
@@ -341,64 +340,66 @@ export const ScenarioModal: React.FC<ScenarioModalProps> = ({
 
             {/* Stage Attributes */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-              <div className="p-2.5 rounded-lg bg-command-950 border border-slate-800">
-                <span className="text-[10px] text-slate-400 block font-medium">Primary Road</span>
-                <span className="font-bold text-white text-[11px] block mt-0.5">
+              <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                <span className="text-[10px] text-slate-500 block font-medium">Primary Road</span>
+                <span className="font-bold text-slate-900 text-[11px] block mt-0.5">
                   {currentInfo.roadStatus}
                 </span>
               </div>
-              <div className="p-2.5 rounded-lg bg-command-950 border border-slate-800">
-                <span className="text-[10px] text-slate-400 block font-medium">Convoy {currentConvoy.id}</span>
-                <span className="font-bold text-white text-[11px] block mt-0.5 truncate">
+              <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                <span className="text-[10px] text-slate-500 block font-medium">Convoy {currentConvoy.id}</span>
+                <span className="font-bold text-slate-900 text-[11px] block mt-0.5 truncate">
                   {currentStage >= 6 ? 'Diverted & Safe' : currentStage >= 4 ? 'Halted at Safe Post' : 'En Route Normal'}
                 </span>
               </div>
-              <div className="p-2.5 rounded-lg bg-command-950 border border-slate-800">
-                <span className="text-[10px] text-slate-400 block font-medium">Cargo Security</span>
-                <span className="font-bold text-emerald-400 text-[11px] block mt-0.5">
+              <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                <span className="text-[10px] text-slate-500 block font-medium">Cargo Security</span>
+                <span className="font-bold text-emerald-700 text-[11px] block mt-0.5">
                   🛡️ Protected via Bypass
                 </span>
               </div>
-              <div className="p-2.5 rounded-lg bg-command-950 border border-slate-800">
-                <span className="text-[10px] text-slate-400 block font-medium">AI Recommended Detour</span>
-                <span className="font-bold text-purple-400 text-[11px] block mt-0.5 truncate">
+              <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                <span className="text-[10px] text-slate-500 block font-medium">AI Recommended Detour</span>
+                <span className="font-bold text-blue-700 text-[11px] block mt-0.5 truncate">
                   🟣 {currentConvoy.bypassRoad.split('(')[0]}
                 </span>
               </div>
             </div>
 
             {/* Operational System Action */}
-            <div className="p-3 rounded-lg bg-command-950/70 border border-slate-800 text-xs text-slate-300 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-purple-400 shrink-0" />
+            <div className="p-3 rounded-lg bg-blue-50/60 border border-blue-200 text-xs text-blue-950 flex items-center gap-2">
+              <div className="w-5 h-5 rounded-md bg-blue-100 flex items-center justify-center text-blue-700 shrink-0">
+                <Zap className="w-3.5 h-3.5" />
+              </div>
               <div>
-                <strong className="text-white">Command Decision: </strong>
+                <strong className="text-blue-950">Command Decision: </strong>
                 <span>{currentInfo.action}</span>
               </div>
             </div>
 
             {/* Final State Badges */}
             {currentStage === 6 && (
-              <div className="p-3.5 rounded-xl border border-emerald-500/50 bg-gradient-to-r from-emerald-950/40 via-command-950 to-purple-950/40 flex flex-wrap items-center justify-between gap-3">
+              <div className="p-3.5 rounded-xl border border-emerald-300 bg-emerald-50/70 flex flex-wrap items-center justify-between gap-3 shadow-xs">
                 <div className="flex items-center gap-2">
                   <span className="text-xl">🏆</span>
                   <div>
-                    <h5 className="text-xs font-bold text-emerald-300 uppercase tracking-wider">
+                    <h5 className="text-xs font-bold text-emerald-900 uppercase tracking-wider">
                       Contingency Drill Successfully Completed
                     </h5>
-                    <p className="text-[11px] text-slate-300">
+                    <p className="text-[11px] text-slate-600">
                       Convoy {currentConvoy.id} safely diverted. Life-saving {currentConvoy.cargo.split('(')[0]} delivered without incident.
                     </p>
                   </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2 font-mono text-[10px] font-bold">
-                  <span className="px-2 py-1 rounded bg-rose-950 text-rose-300 border border-rose-600/60">
+                  <span className="px-2 py-1 rounded bg-rose-100 text-rose-800 border border-rose-300">
                     🔴 {currentConvoy.primaryRoad.split('(')[0]} BLOCKED
                   </span>
-                  <span className="px-2 py-1 rounded bg-purple-950 text-purple-300 border border-purple-600/60">
+                  <span className="px-2 py-1 rounded bg-purple-100 text-purple-800 border border-purple-300">
                     🟣 AI DETOUR ACTIVE
                   </span>
-                  <span className="px-2 py-1 rounded bg-emerald-950 text-emerald-300 border border-emerald-600/60">
+                  <span className="px-2 py-1 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
                     🚛 CONVOY {currentConvoy.id} REROUTED
                   </span>
                 </div>
@@ -408,11 +409,11 @@ export const ScenarioModal: React.FC<ScenarioModalProps> = ({
         </div>
 
         {/* Footer Actions */}
-        <div className="px-5 py-3 border-t border-slate-800 bg-command-900 flex items-center justify-between gap-3">
+        <div className="px-5 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between gap-3">
           <button
             onClick={handleReset}
             disabled={loading}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-command-800 hover:bg-command-700 border border-slate-700 text-xs font-semibold text-slate-300 transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-100 border border-slate-300 text-xs font-semibold text-slate-700 transition-colors cursor-pointer shadow-xs"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Reset Drill</span>
@@ -423,7 +424,7 @@ export const ScenarioModal: React.FC<ScenarioModalProps> = ({
               <button
                 onClick={handleNextStage}
                 disabled={loading}
-                className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
+                className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition-all cursor-pointer"
               >
                 <span>Proceed to Phase {currentStage + 1}: {SIX_STEPS[currentStage].title}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -431,7 +432,7 @@ export const ScenarioModal: React.FC<ScenarioModalProps> = ({
             ) : (
               <button
                 onClick={onClose}
-                className="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-colors cursor-pointer"
+                className="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-colors cursor-pointer shadow-xs"
               >
                 Close & Inspect Live Map
               </button>
